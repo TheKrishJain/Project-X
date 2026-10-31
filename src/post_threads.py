@@ -1,6 +1,11 @@
-"""Meta Threads Graph API integration.
+"""Meta Threads Graph API integration for auto-poster.
 
-Handles container creation and publishing for single posts and sequential threads.
+Features:
+- Official Graph API endpoint: graph.threads.net/v1.0
+- Two-step container publishing: POST /{THREADS_USER_ID}/threads -> 5s sleep -> POST /{user_id}/threads_publish
+- Sequential reply chaining to previous published post ID
+- refresh_token() support using GET /refresh_access_token?grant_type=th_refresh_token
+- Dry-run simulation mode
 """
 
 from __future__ import annotations
@@ -17,6 +22,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 THREADS_BASE_URL = "https://graph.threads.net/v1.0"
+THREADS_REFRESH_URL = "https://graph.threads.net/refresh_access_token"
 
 
 def get_threads_credentials() -> dict[str, str]:
@@ -26,31 +32,46 @@ def get_threads_credentials() -> dict[str, str]:
     }
 
 
-def _wait_for_container(creation_id: str, access_token: str, max_retries: int = 5, delay: float = 2.0) -> None:
-    """Optionally poll container status before publishing."""
-    url = f"{THREADS_BASE_URL}/{creation_id}"
-    params = {"fields": "status_code,error_message", "access_token": access_token}
+def refresh_token(access_token: str | None = None) -> dict[str, Any]:
+    """Refresh a long-lived Threads User Access Token.
 
-    for attempt in range(max_retries):
-        try:
-            resp = requests.get(url, params=params, timeout=15)
-            if resp.status_code == 200:
-                data = resp.json()
-                status = data.get("status_code", "").upper()
-                if status == "FINISHED":
-                    return
-                if status == "ERROR":
-                    err = data.get("error_message", "Unknown container error")
-                    raise RuntimeError(f"Threads container failed: {err}")
-        except Exception:
-            pass
-        time.sleep(delay)
+    Calls GET https://graph.threads.net/refresh_access_token?grant_type=th_refresh_token&access_token=...
+    Threads long-lived tokens are valid for 60 days and can be refreshed after 24 hours.
+    Returns the JSON response: {"access_token": "...", "token_type": "bearer", "expires_in": int}.
+    """
+    token = (access_token or os.getenv("THREADS_ACCESS_TOKEN", "")).strip()
+    if not token:
+        raise ValueError("Cannot refresh Threads token: access_token is empty.")
+
+    params = {
+        "grant_type": "th_refresh_token",
+        "access_token": token,
+    }
+
+    print("[post_threads] Requesting Threads token refresh...")
+    response = requests.get(THREADS_REFRESH_URL, params=params, timeout=20)
+    if response.status_code != 200:
+        err_msg = f"Failed to refresh Threads token: {response.status_code} {response.text}"
+        print(f"[post_threads] {err_msg}", file=sys.stderr)
+        response.raise_for_status()
+
+    data: dict[str, Any] = response.json()
+    new_token = data.get("access_token")
+    expires_in = data.get("expires_in")
+    print(f"[post_threads] Successfully refreshed token! Valid for ~{int(expires_in or 0) // 86400} days.")
+    return data
 
 
 def post_to_threads(posts: list[str], dry_run: bool = False) -> list[str]:
-    """Publish a single post or a sequential thread to Meta Threads.
+    """Publish single post or sequential thread to Meta Threads.
 
-    Returns the list of created Threads Post IDs.
+    For each post:
+    1. POST /{THREADS_USER_ID}/threads with media_type=TEXT, text, reply_to_id (for 2nd+ items)
+    2. Sleep 5 seconds
+    3. POST /{THREADS_USER_ID}/threads_publish with creation_id
+    4. Chain replies to the previous published ID
+
+    Returns the list of published Threads post IDs.
     """
     if not posts:
         return []
@@ -73,55 +94,54 @@ def post_to_threads(posts: list[str], dry_run: bool = False) -> list[str]:
             print(f"  [{i}/{len(posts)}] (ID: {mock_id}):\n    {post.replace(chr(10), chr(10) + '    ')}")
         return mock_ids
 
-    created_post_ids: list[str] = []
-    previous_post_id: str | None = None
+    published_ids: list[str] = []
+    previous_published_id: str | None = None
 
     for i, post in enumerate(posts, start=1):
-        # 1. Create Media Container
+        # 1. Step 1: Create media container
         create_url = f"{THREADS_BASE_URL}/{user_id}/threads"
         create_payload: dict[str, Any] = {
             "media_type": "TEXT",
             "text": post,
             "access_token": access_token,
         }
-        if previous_post_id:
-            create_payload["reply_to_id"] = previous_post_id
+        # Chain replies to the previous published post ID for 2nd+ items
+        if previous_published_id:
+            create_payload["reply_to_id"] = previous_published_id
 
-        create_resp = requests.post(create_url, data=create_payload, timeout=20)
+        print(f"[post_threads] [{i}/{len(posts)}] Creating media container...")
+        create_resp = requests.post(create_url, data=create_payload, timeout=25)
         if create_resp.status_code not in (200, 201):
             print(
-                f"[post_threads] Error creating container for post {i}: {create_resp.status_code} {create_resp.text}",
+                f"[post_threads] Container creation failed on post {i}: {create_resp.status_code} {create_resp.text}",
                 file=sys.stderr,
             )
             create_resp.raise_for_status()
 
         creation_id = str(create_resp.json().get("id"))
+        print(f"[post_threads] [{i}/{len(posts)}] Container created (ID: {creation_id}). Waiting 5s...")
 
-        # Wait briefly for container processing
-        _wait_for_container(creation_id, access_token)
+        # 2. Wait 5s before publishing
+        time.sleep(5)
 
-        # 2. Publish Media Container
+        # 3. Step 2: Publish media container
         publish_url = f"{THREADS_BASE_URL}/{user_id}/threads_publish"
         publish_payload = {
             "creation_id": creation_id,
             "access_token": access_token,
         }
 
-        publish_resp = requests.post(publish_url, data=publish_payload, timeout=20)
+        publish_resp = requests.post(publish_url, data=publish_payload, timeout=25)
         if publish_resp.status_code not in (200, 201):
             print(
-                f"[post_threads] Error publishing container {creation_id}: {publish_resp.status_code} {publish_resp.text}",
+                f"[post_threads] Publishing container {creation_id} failed: {publish_resp.status_code} {publish_resp.text}",
                 file=sys.stderr,
             )
             publish_resp.raise_for_status()
 
-        post_id = str(publish_resp.json().get("id"))
-        created_post_ids.append(post_id)
-        previous_post_id = post_id
-        print(f"[post_threads] Published post {i}/{len(posts)} -> ID: {post_id}")
+        published_post_id = str(publish_resp.json().get("id"))
+        published_ids.append(published_post_id)
+        previous_published_id = published_post_id
+        print(f"[post_threads] [{i}/{len(posts)}] Published successfully -> Post ID: {published_post_id}")
 
-        # Minor safety pause between thread replies
-        if i < len(posts):
-            time.sleep(2)
-
-    return created_post_ids
+    return published_ids

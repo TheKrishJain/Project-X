@@ -9,12 +9,11 @@ on:
   workflow_dispatch:
     inputs:
       slot:
-        description: 'Posting Slot'
+        description: 'Posting Slot (morning / night)'
         required: true
-        default: 'auto'
+        default: 'morning'
         type: choice
         options:
-          - auto
           - morning
           - night
       dry_run:
@@ -23,12 +22,7 @@ on:
         default: false
         type: boolean
       day_override:
-        description: 'Override weekday (e.g. thursday, saturday)'
-        required: false
-        default: ''
-        type: string
-      force_pillar:
-        description: 'Force specific pillar (e.g. ai_hack)'
+        description: 'Override weekday (e.g. thursday, tuesday)'
         required: false
         default: ''
         type: string
@@ -64,17 +58,35 @@ jobs:
           X_API_KEY: ${{ secrets.X_API_KEY }}
           X_API_SECRET: ${{ secrets.X_API_SECRET }}
           X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
-          X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
+          X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET || secrets.X_ACCESS_TOKEN_SECRET }}
+          X_MONTHLY_CAP: ${{ vars.X_MONTHLY_CAP || '85' }}
           THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
           THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
-          SLOT: ${{ github.event.inputs.slot || 'auto' }}
           FORCE_DAY: ${{ github.event.inputs.day_override || '' }}
-          FORCE_PILLAR: ${{ github.event.inputs.force_pillar || '' }}
-          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
         run: |
-          python -m src.main
+          # Determine slot based on trigger or manual input
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            SLOT_ARG="--slot ${{ github.event.inputs.slot }}"
+            if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+              DRY_RUN_ARG="--dry-run"
+            else
+              DRY_RUN_ARG=""
+            fi
+          else
+            # Cron trigger: check current UTC hour
+            HOUR=$(date -u +%H)
+            if [ "$HOUR" -ge 12 ]; then
+              SLOT_ARG="--slot night"
+            else
+              SLOT_ARG="--slot morning"
+            fi
+            DRY_RUN_ARG=""
+          fi
+
+          python -m src.main $SLOT_ARG $DRY_RUN_ARG
 
       - name: Commit and push updated history & usage
+        if: always()
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"

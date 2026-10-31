@@ -1,7 +1,13 @@
 """Main orchestration CLI for auto-poster.
 
-Resolves schedule, generates posts via google-genai, dispatches to X and Threads,
-and records history and usage.
+Features:
+- CLI args: --slot morning|night, --dry-run
+- Random sleep 0-35 min for natural jitter (skipped on dry-run)
+- Content generation via google-genai
+- Independent dispatch to Threads and X (failure on one doesn't block the other)
+- History recording in data/history.json & X budget tracking in data/x_usage.json
+- Clear execution logging
+- Exits non-zero (code 1) if both platforms fail, triggering GitHub Actions alert emails
 """
 
 from __future__ import annotations
@@ -9,7 +15,9 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import random
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -78,119 +86,118 @@ def record_history(
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Auto-poster for X and Threads using Gemini")
+    parser = argparse.ArgumentParser(description="Auto-poster for X and Threads")
     parser.add_argument(
         "--slot",
-        choices=["auto", "morning", "night"],
-        default=os.getenv("SLOT", "auto"),
-        help="Slot override (morning/night/auto)",
-    )
-    parser.add_argument(
-        "--date",
-        default=os.getenv("DATE", None),
-        help="Date or ISO string (e.g. 2026-10-31)",
-    )
-    parser.add_argument(
-        "--day",
-        default=os.getenv("FORCE_DAY", None),
-        help="Weekday override (e.g. monday, thursday)",
-    )
-    parser.add_argument(
-        "--force-pillar",
-        default=os.getenv("FORCE_PILLAR", None),
-        help="Force a specific content pillar",
-    )
-    parser.add_argument(
-        "--target",
-        choices=["all", "x", "threads"],
-        default="all",
-        help="Target platform(s) to post",
+        choices=["morning", "night", "auto"],
+        default=os.getenv("SLOT", "morning"),
+        help="Posting slot: morning or night",
     )
     parser.add_argument(
         "--dry-run",
         action="store_true",
         default=os.getenv("DRY_RUN", "false").lower() == "true",
-        help="Simulate execution without calling live APIs",
+        help="Simulate execution without posting or sleeping",
+    )
+    # Optional flags for testing convenience
+    parser.add_argument(
+        "--date",
+        default=os.getenv("DATE", None),
+        help="Optional date override (e.g. 2026-10-31)",
     )
     parser.add_argument(
-        "--preview",
+        "--day",
+        default=os.getenv("FORCE_DAY", None),
+        help="Optional weekday override (e.g. thursday)",
+    )
+    parser.add_argument(
+        "--no-sleep",
         action="store_true",
-        help="Generate and preview posts only without posting or modifying data",
+        help="Skip jitter sleep even if not dry-run",
     )
 
     args = parser.parse_args()
     date_val = args.date or args.day
 
+    # 1. Random jitter sleep: 0 to 35 minutes (0 to 2100 seconds)
+    is_dry_run = args.dry_run
+    if not is_dry_run and not args.no_sleep:
+        jitter_seconds = random.randint(0, 35 * 60)
+        minutes, seconds = divmod(jitter_seconds, 60)
+        print(f"[main] Applying random jitter sleep: {jitter_seconds}s ({minutes}m {seconds}s)...")
+        time.sleep(jitter_seconds)
+    else:
+        print("[main] Skipping jitter sleep (dry-run or no-sleep enabled).")
+
+    # 2. Resolve plan
     schedule = load_schedule()
     plan = resolve_plan(
         schedule=schedule,
         slot=args.slot,
         date=date_val,
-        force_pillar=args.force_pillar,
     )
 
     print("=" * 64)
-    print(f"Auto-Poster Run [{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}]")
-    print(f"  Slot:              {plan.slot}")
-    print(f"  Date / Weekday:    {plan.date.strftime('%Y-%m-%d')} ({plan.weekday.capitalize()})")
-    print(f"  Pillar:            {plan.pillar}")
+    print(f"Auto-Poster Execution [{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}]")
+    print(f"  Slot:           {plan.slot.upper()}")
+    print(f"  Date / Day:     {plan.date.strftime('%Y-%m-%d')} ({plan.weekday.capitalize()})")
+    print(f"  Pillar:         {plan.pillar}")
     if plan.industry:
-        print(f"  Industry:          {plan.industry}")
-    print(f"  Search Grounding:  {plan.use_google_search}")
-    print(f"  X format:          {'Thread (4-5 posts)' if plan.is_x_thread else 'Single Post'}")
-    print(f"  Threads format:    {'Thread (4-5 posts)' if plan.is_threads_thread else 'Single Post'}")
-    print(f"  Dry run mode:      {args.dry_run or args.preview}")
+        print(f"  Industry:       {plan.industry}")
+    print(f"  X format:       {'Thread (4-5 posts)' if plan.is_x_thread else 'Single Post'}")
+    print(f"  Threads format: {'Thread (4-5 posts)' if plan.is_threads_thread else 'Single Post'}")
+    print(f"  Dry run mode:   {is_dry_run}")
     print("=" * 64)
 
-    # 1. Generate content with google-genai
+    # 3. Generate content via google-genai
     content = generate_content(
         slot=plan.slot,
         date=plan.date,
         force_pillar=plan.pillar,
-        dry_run=args.dry_run or args.preview,
+        dry_run=is_dry_run,
     )
 
-    print(f"\n[Topic]: {content.topic}")
-    print(f"[Self-Critique Score]: {content.critique_score}/10 ({content.critique_reason})")
+    print(f"\n[Generated Topic]: {content.topic}")
+    print(f"[Self-Critique]:   Score {content.critique_score}/10 ({content.critique_reason})")
 
-    print(f"\n--- X Content ({len(content.x_posts)} item(s)) ---")
-    for i, p in enumerate(content.x_posts, start=1):
-        print(f"X [{i}/{len(content.x_posts)}] ({len(p)}/270 chars):\n{p}\n")
+    print(f"\n--- X Posts ({len(content.x_posts)} item(s)) ---")
+    for idx, post in enumerate(content.x_posts, start=1):
+        print(f"  [{idx}/{len(content.x_posts)}] ({len(post)}/270 chars):\n    {post.replace(chr(10), chr(10) + '    ')}")
 
-    print(f"--- Threads Content ({len(content.threads_posts)} item(s)) ---")
-    for i, p in enumerate(content.threads_posts, start=1):
-        print(f"Threads [{i}/{len(content.threads_posts)}] ({len(p)}/480 chars):\n{p}\n")
+    print(f"\n--- Threads Posts ({len(content.threads_posts)} item(s)) ---")
+    for idx, post in enumerate(content.threads_posts, start=1):
+        print(f"  [{idx}/{len(content.threads_posts)}] ({len(post)}/480 chars):\n    {post.replace(chr(10), chr(10) + '    ')}")
 
-    if args.preview:
-        print("[preview] Preview complete. No posts dispatched.")
-        return 0
-
+    # 4. Dispatch independently to Threads and X
+    x_success = False
+    threads_success = False
     x_ids: list[str] = []
     threads_ids: list[str] = []
 
-    # 2. Dispatch to X
-    if args.target in ("all", "x"):
-        print(f"\n[Dispatching to X ({len(content.x_posts)} post(s))]...")
-        try:
-            x_ids = post_to_x(content.x_posts, dry_run=args.dry_run)
-            print(f"[X] Successfully posted: {x_ids}")
-        except Exception as e:
-            print(f"[X] Failed to post: {e}", file=sys.stderr)
-            if not args.dry_run:
-                pass
+    # Dispatch to Threads
+    print("\n" + "-" * 40)
+    print(f"[Threads Dispatch] Posting {len(content.threads_posts)} item(s)...")
+    try:
+        threads_ids = post_to_threads(content.threads_posts, dry_run=is_dry_run)
+        threads_success = True
+        print(f"[Threads Dispatch] Succeeded! Post IDs: {threads_ids}")
+    except Exception as e:
+        print(f"[Threads Dispatch] FAILED: {e}", file=sys.stderr)
 
-    # 3. Dispatch to Threads
-    if args.target in ("all", "threads"):
-        print(f"\n[Dispatching to Threads ({len(content.threads_posts)} post(s))]...")
-        try:
-            threads_ids = post_to_threads(content.threads_posts, dry_run=args.dry_run)
-            print(f"[Threads] Successfully posted: {threads_ids}")
-        except Exception as e:
-            print(f"[Threads] Failed to post: {e}", file=sys.stderr)
-            if not args.dry_run:
-                pass
+    # Dispatch to X
+    print("\n" + "-" * 40)
+    print(f"[X Dispatch] Posting {len(content.x_posts)} item(s)...")
+    try:
+        x_ids = post_to_x(content.x_posts, dry_run=is_dry_run)
+        # If budget guard skipped X entirely, it still counts as cleanly handled
+        x_success = True
+        print(f"[X Dispatch] Succeeded! Tweet IDs: {x_ids}")
+    except Exception as e:
+        print(f"[X Dispatch] FAILED: {e}", file=sys.stderr)
 
-    # 4. Record to history
+    print("\n" + "=" * 64)
+
+    # 5. Record to data/history.json
     plan_dict = {
         "slot": plan.slot,
         "date": plan.date.isoformat(),
@@ -210,8 +217,14 @@ def main() -> int:
         critique_score=content.critique_score,
         critique_reason=content.critique_reason,
     )
-    print(f"\n[history] Run logged to {HISTORY_FILE.relative_to(HISTORY_FILE.parent.parent)}")
-    print("\nRun completed successfully.")
+    print(f"[main] Recorded execution to {HISTORY_FILE.relative_to(HISTORY_FILE.parent.parent)}")
+
+    # 6. Exit evaluation: exit non-zero if BOTH platforms failed
+    if not threads_success and not x_success and not is_dry_run:
+        print("[main] FATAL: Both Threads and X dispatches failed! Exiting with code 1.", file=sys.stderr)
+        return 1
+
+    print("[main] Execution completed successfully.")
     return 0
 
 
