@@ -34,6 +34,8 @@ class _Models:
                         raise
                     last = e
                     print(f"[llm] {m} busy (try {i + 1}): {str(e)[:60]}")
+                    if "per day limit exceeded" in str(e).lower():
+                        break
             print(f"[llm] giving up on {m}")
         assert last is not None
         raise last
@@ -42,6 +44,6 @@ class _Models:
 class RetryingClient:
     def __init__(self, client: Any, fallbacks: list[str] | None = None, delays: tuple[float, ...] = (3, 8, 20)):
         if fallbacks is None:
-            fallbacks = [m.strip() for m in os.getenv("GEMINI_FALLBACK_MODELS", "gemini-3.5-flash").split(",") if m.strip()]
+            fallbacks = [m.strip() for m in os.getenv("GEMINI_FALLBACK_MODELS", "gemini-3.5-flash,gemini-3.5-flash-lite").split(",") if m.strip()]
         self.client = client
         self.models = _Models(client.models, fallbacks, list(delays), client=client)
