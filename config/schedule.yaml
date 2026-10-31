@@ -1,0 +1,60 @@
+# Auto-Poster Schedule Configuration
+
+slots:
+  morning:
+    # 09:00 AM IST corresponds to 03:30 AM UTC
+    cron: "30 3 * * *"
+    description: "Morning strategy and case study slot"
+    pillars:
+      monday:
+        - "tech_for_business"
+      tuesday:
+        - "marketing_case_study"
+      wednesday:
+        - "ai_hack"
+      thursday:
+        - "business_strategy"
+      friday:
+        - "marketing_case_study"
+        - "tech_for_business"
+      saturday:
+        - "ai_hack"
+      sunday:
+        - "business_strategy"
+
+  night:
+    # 09:00 PM IST corresponds to 15:30 PM UTC
+    cron: "30 15 * * *"
+    description: "Night psychology and motivation slot"
+    pillars:
+      - name: "psychology_insight"
+        weight: 0.75
+      - name: "motivation"
+        weight: 0.25
+    industries:
+      - "finance"
+      - "marketing"
+      - "operations"
+      - "startups"
+
+threads_rules:
+  thursday:
+    x_thread: true
+    threads_thread: true
+    min_posts: 4
+    max_posts: 5
+  tuesday:
+    x_thread: false
+    threads_thread: true
+    min_posts: 4
+    max_posts: 5
+  saturday:
+    x_thread: false
+    threads_thread: true
+    min_posts: 4
+    max_posts: 5
+  default:
+    x_thread: false
+    threads_thread: false
+    min_posts: 1
+    max_posts: 1
