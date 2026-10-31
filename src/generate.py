@@ -591,9 +591,11 @@ def select_format(
 ) -> str:
     if is_threads_thread_scheduled:
         return "thread"
-    names = [f["name"] for f in formats_config]
+    names = [f.get("id", f.get("name", "thread")).lower() for f in formats_config]
+    if not names:
+        return "thread"
     pool_weights = [weights.get(n, 1.0) for n in names]
-    return random.choices(names, weights=pool_weights, k=1)[0]
+    return random.choices(names, weights=pool_weights, k=1)[0].lower()
 
 
 def resolve_plan(
@@ -655,14 +657,15 @@ def resolve_plan(
     )
 
     formats_list = hooks_yaml.get("formats", [])
-    fmt = force_format or select_format(
+    raw_fmt = force_format or select_format(
         formats_config=formats_list,
         weights=dyn_weights.get("formats", {}),
         is_threads_thread_scheduled=is_threads_thread_sched,
     )
+    fmt = str(raw_fmt).strip().lower()
 
     is_threads_thread = (fmt == "thread")
-    threads_post_count = 4 if is_threads_thread else 1
+    threads_post_count = 5 if is_threads_thread else 1
     x_post_count = (4 if is_x_thread else 1) if enable_x else 0
 
     pillar_map = hooks_yaml.get("pillar_topic_map", DEFAULT_PILLAR_TOPIC_MAP)
