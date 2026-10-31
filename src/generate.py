@@ -878,6 +878,8 @@ def validate_and_sanitize(
             (re.compile(r"\bguaranteed\s+to\b", re.I), "likely to"),
             (re.compile(r"\b100%\s+of\s+the\s+time\b", re.I), "most of the time"),
         ]:
+            if source_text and pat.search(source_text):
+                continue
             clean_text = pat.sub(repl, clean_text)
         if not plan.is_trend_jack:
             clean_text = re.sub(r"\btoday\b", "currently", clean_text, flags=re.I)
@@ -910,7 +912,7 @@ def validate_and_sanitize(
         # Fix 4: Fact hygiene - Absolute claims ban
         for pat in ABSOLUTE_CLAIM_PATTERNS:
             match = pat.search(clean_text)
-            if match:
+            if match and not (source_text and match.group(0).lower() in source_text.lower()):
                 return False, f"Threads post {idx} contains forbidden absolute claim '{match.group(0)}'. Use nuanced phrasing.", candidate
 
         # Fix 2: Time anchor claims forbidden unless trend-jack
@@ -1017,10 +1019,22 @@ Post: "Artificial intelligence tools are becoming more popular in software devel
 Scores: hook_strength=3 (generic, no curiosity), specificity=6 (names companies), originality=2 (states the obvious), voice_match=3 (reads like a press release), shareability=2 (nothing to screenshot)
 Average: 3.2
 
-CALIBRATION EXAMPLE 2 (strong, ~8.6 average):
+CALIBRATION EXAMPLE 2 (strong single post, ~8.6 average):
 Post: "Costco caps markup at 14 percent. Most of its profit comes from annual membership fees, not product margins. When subscription access drives revenue, pricing inventory at cost becomes your moat."
 Scores: hook_strength=8 (specific number hooks), specificity=9 (exact margin cap, real business model), originality=8 (counterintuitive profit structure), voice_match=9 (sharp, founder-like), shareability=9 (operators would screenshot)
 Average: 8.6
+
+CALIBRATION EXAMPLE 3 (strong thread, ~8.4 average):
+Post:
+Hardware specs matter less than distribution constraints. Most founders assume faster processors guarantee market leadership.
+---
+Nintendo designed the Game Boy using mature, low-cost technology under Gunpei Yokoi. They chose an 8-bit monochromatic display over faster color hardware.
+---
+Competitors like Sega's Game Gear and Atari's Lynx shipped color displays but burned through batteries. Nintendo focused on battery life and bundled Tetris to expand distribution.
+---
+Build for constraints your customers actually care about instead of chasing peak technical specs. Distribution wins when unit economics match reality.
+Scores: hook_strength=8 (counterintuitive hook under 12 words), specificity=9 (exact hardware specs, rival console names, bundling strategy), originality=8 (applies classic hardware constraint to modern product design), voice_match=9 (sharp Mumbai founder cadence, zero MBA fluff), shareability=8 (high-signal mental model operators screenshot)
+Average: 8.4
 
 NOW SCORE THIS POST:
 Entity: {candidate.get('entity')}
@@ -1453,10 +1467,10 @@ def generate_content(
             c = re.sub(r"\s*\(.*?\)", "", c).strip().lower()
             return any(b and (b in c or c in b) for b in blocked_entities)
 
-        _pri = ["Game Boy", "Toyota Production System", "Southwest Airlines", "Costco", "Zara (retailer)", "Netflix", "Planning fallacy", "Endowment effect", "Kaizen"]
+        _pri = ["Costco", "Toyota Production System", "Game Boy", "Shopify", "Cloudflare", "Southwest Airlines", "Netflix"]
         _p_cands = [c for c in _pri if c in candidates and not _blocked(c)]
         _o_cands = [c for c in candidates if c not in _pri and c != target_entity and not _blocked(c)]
-        # keep priority order
+        random.shuffle(_p_cands)
         random.shuffle(_o_cands)
         rest = _p_cands + _o_cands
 
@@ -1496,6 +1510,12 @@ CRITICAL FACT RESTRICTIONS (MANDATORY):
 - Do NOT invent motives, unstated marketing strategies, or feelings.
 - FACT GATE (checked by code after you write): every sentence that names a company, product, person, study, place, date or number must restate something the SOURCE says, close to its wording. Put your own insight in separate sentences that name nothing real. Any unsupported sentence gets the post rejected.
 - STRICT FACT ACCURACY: Do NOT add embellishments, adverbs, or extra qualifiers (do not write 'extensively', 'successfully', 'exact pattern', 'immediately', 'without prior demand'). Stick strictly to the exact plain phrasing in the SOURCE text (e.g. write 'commonly studied', 'replicated the findings', 'was successful').
+- DATES AND YEARS: ONLY attach a year to the EXACT action the source specifies (e.g. if the source says 'released in 1989', do NOT write 'designed in 1989'). NEVER combine dates from one sentence with actions from another.
+- NO COMPOUND UNVERIFIED CLAIMS: Keep factual sentences short and direct. Do not merge separate source sentences using 'while' or 'and' unless that exact compound relationship is in the source.
+- ONE SOURCE FACT PER SENTENCE: Write short, direct factual sentences (10 to 18 words). NEVER merge multiple source sentences into one long compound sentence. If the source says 'Store X opened on [date]. It was founded by Y', write TWO simple sentences: 'Price Club opened its first store on July 12, 1976, on Morena Boulevard. Sol Price and his son Robert founded the company after a dispute at FedMart.' Simple sentences guarantee exact verbatim quote matches!
+- STRICT SOURCE CONFINEMENT (ZERO PRE-TRAINING RECALL): You must rely SOLELY on facts explicitly written in the ALLOWED FACT SOURCE TEXT. NEVER import background lore, dates, or backstory from external memory (e.g. do not invent unstated market crises, declining sales, or unwritten years). If a detail is not in the source snippet, omit it completely.
+- POST 1 TENSION: The tension introduced in Post 1 must be a GENERAL observation about markets, products, or founders (e.g. 'Most teams burn capital building features users never touch'). NEVER assert unverified historical motives or corporate states about the company in Post 1 (do not write 'They needed to stabilize their position' or 'They faced declining sales').
+- UNIVERSAL LESSONS: Editorial sentences and closing takeaways must be universal principles that name no companies or people, so they are cleanly recognized as operator wisdom.
 """
 
     structure_instruction = f"""
@@ -1512,18 +1532,20 @@ Format: {plan.format}
 VIRAL FOUNDER VOICE & TONE (CRITICAL FOR HIGH SCORE & SHAREABILITY):
 - Voice: Calm, observant, sharp young Mumbai founder talking to another founder over coffee.
 - FIRST LINE MUST BE A PUNCHY HOOK (strictly under 10 words). DO NOT write scene-setting historical openers like 'In a 1975 study' or 'Psychologists have studied'. Lead with an immediate operational reality or contrarian observation (e.g. 'Most pricing tiers hide an intentional trap' or 'Top performers do not practice longer than peers').
-- NO ACADEMIC PREAMBLE (CRITICAL FOR FOUNDER VOICE >= 8.0): NEVER write phrases like 'In a 1994 study', 'Researchers investigated', 'Psychologists demonstrated', or 'According to behavioral economics'. State the experiment actions and findings DIRECTLY.
-- NAME SPECIFIC RIVALS & METRICS (MANDATORY FOR HIGH SPECIFICITY >= 8.0): In Posts 2 and 3, ALWAYS explicitly name the real competing companies, rival products, exact dates, or hardware metrics from the source text (e.g. name 'Sega Game Gear', 'Atari Lynx', 'monochromatic display', '8-bit processor'). NEVER write generic phrases like 'competing devices' or 'other rivals'. The editor requires exact names and concrete specs.
+- NO ENCYCLOPEDIA TIMELINES (CRITICAL FOR VOICE >= 8.0): NEVER write dry chronological recaps like 'It was released on April 21, 1989' or 'It was founded in Scotts Valley'. Avoid listing release dates. Frame every verified fact around the strategic decision or engineering trade-off.
+- BAN ON CORPORATE BOILERPLATE (CRITICAL FOR VOICE >= 8.0 & ORIGINALITY >= 8.0): NEVER write introductory corporate descriptions like 'X is an American multinational corporation', 'founded in [year] in [city]', or 'operates a chain of retail stores'. Jump DIRECTLY into the operational mechanic, pricing model, customer rule, or engineering decision.
+- EXPLAIN THE TRADE-OFF: Highlight the verified mechanics and trade-offs from the source text (e.g. trading color screens for 30 hours of battery life and lower unit cost).
+- NO ACADEMIC PREAMBLE: NEVER write phrases like 'In a 1994 study', 'Researchers investigated', or 'According to Wikipedia'. State the verified mechanisms directly.
+- NAME SPECIFIC RIVALS & SPECS (MANDATORY FOR HIGH SPECIFICITY >= 8.0): In Posts 2 and 3, ALWAYS explicitly name the real competing companies, rival products, or hardware metrics from the source text (e.g. name 'Sega Game Gear', 'Atari Lynx', 'monochromatic display', '8-bit processor'). NEVER write generic phrases like 'competing devices' or 'other rivals'. The editor requires exact names and concrete specs.
 - The middle posts explain the verified study or mechanic using ONLY verified facts and numbers from the source text.
 - The closing post connects the mechanism directly to founder execution (pricing, negotiation, engineering, hiring).
 - STRICT ACCURACY + NATURAL VOICE: Use exact words from the source for experimental procedures and numbers. Frame the context as practical founder wisdom without adding unsupported adjectives to the experiment itself.
 
 GOLD STANDARD BENCHMARK (STUDY THIS CLOSELY TO ACHIEVE >= 8.0 SCORE):
-Post 1: Open with a punchy 6-9 word contrarian observation. Never name a researcher, book, or study in Post 1.
-Post 2: Detail the core mechanism or experiment cleanly using plain facts from the source text.
-Post 3: Detail the contrast, data, or inflection point from the source text.
-Post 4: Connect the mechanic to real company execution (pricing, onboarding, retention, team focus).
-Post 5: Give the operator takeaway in 2 crisp sentences. What should an operator do differently?
+Post 1: Hardware specs matter less than distribution constraints. Most founders assume faster processors guarantee market leadership.
+Post 2: Nintendo designed the Game Boy using mature, low-cost technology under Gunpei Yokoi. They chose an 8-bit monochromatic display over faster color hardware.
+Post 3: Competitors like Sega's Game Gear and Atari's Lynx shipped color displays but burned through batteries. Nintendo focused on battery life and bundled Tetris to expand distribution.
+Post 4: Build for constraints your customers actually care about instead of chasing peak technical specs. Distribution wins when unit economics match reality.
 """
 
     schema_spec = f"""{{
@@ -1552,7 +1574,7 @@ SLOT & PLATFORM REQUIREMENTS:
 {grounding_prompt}
 {structure_instruction}
 
-FIRST LINE RULE: Under 12 words, creates curiosity without clickbait, executes pattern '{plan.hook_pattern}'. NEVER open with a definition or concept name. NEVER start with 'Most people think', 'Most people don't', 'People rarely', or 'Stop [verb]ing' (these trigger duplicate overlap rejection). Lead with a completely original, punchy statement.
+FIRST LINE RULE: Under 12 words, creates curiosity without clickbait, executes pattern '{plan.hook_pattern}'. NEVER open with a definition or concept name. NEVER start with 'Most people think', 'Most people don't', 'People rarely', 'Stop [verb]ing', 'Why do', 'Have you ever', 'What if', or 'Did you know' (these trigger rejection). Lead with a completely original, punchy statement.
 DASH BAN: Zero em dashes (—) or en dashes (–). Use periods or commas.
 NO ABSOLUTE CLAIMS: Never write 'always', 'every single day', 'never fails'.
 

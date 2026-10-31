@@ -40,10 +40,11 @@ ALL_NUM_WORDS = {**SPELLED_NUMBERS, **ORDINALS}
 
 def _build_source_nums(source_text: str) -> set[str]:
     """Build the full set of verified numbers from source text (digits + words)."""
-    nums: set[str] = set(re.findall(r"\b\d+(?:[.,]\d+)?\b", source_text))
+    nums: set[str] = set(re.findall(r"\d+(?:[.,]\d+)*", source_text))
     for n in list(nums):
         if "." in n:
             nums.add(n.split(".")[0])
+            nums.add(n.split(".")[1])
         if "," in n:
             nums.add(n.replace(",", ""))
     source_lower = source_text.lower()
@@ -81,7 +82,7 @@ def strip_unverified_numbers(text: str, source_text: str) -> str:
     source_nums = _build_source_nums(source_text)
 
     _num_words_pat = "|".join(re.escape(w) for w in sorted(ALL_NUM_WORDS, key=len, reverse=True))
-    _num_pat = rf"\d+|{_num_words_pat}"
+    _num_pat = rf"\d+(?:\.\d+)?|{_num_words_pat}"
     _time_units = r"weeks?|days?|months?|years?|hours?|decades?|centuries?"
     _measure_units = r"lines?|steps?|features?|users?|customers?|employees?|stores?|countries?|cities?|products?|million|billion|thousand|hundred"
 
