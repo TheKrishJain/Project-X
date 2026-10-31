@@ -890,11 +890,11 @@ def validate_and_sanitize(
                     candidate,
                 )
         else:
-            # Single post format must have >= 2 sentences
-            if plan.format != "one_liner" and s_count < 2:
+            # Single post format must have >= 1 complete sentence
+            if s_count < 1:
                 return (
                     False,
-                    f"Single post has only {s_count} complete sentence(s). Must have >= 2 sentences (hook + concrete substance + takeaway).",
+                    f"Single post has no complete sentence.",
                     candidate,
                 )
 
@@ -1378,7 +1378,7 @@ def generate_content(
 
     pillar_entity_pools: dict[str, list[str]] = {
         "tech_for_business": [
-            "Shopify", "Cloudflare", "Automattic", "Red Hat", "Stripe, Inc.", "Datadog", "GitHub", "Atlassian",
+            "Game Boy", "Toyota Production System", "Costco", "Shopify", "Cloudflare", "Automattic", "Red Hat", "Stripe, Inc.", "Datadog", "GitHub", "Atlassian",
             "Twilio", "Canva", "Figma", "Notion (productivity software)", "Zapier", "HubSpot", "Razorpay", "Zerodha",
             "Freshworks", "Zoho Corporation", "Unified Payments Interface", "Tally Solutions", "Postman (software)",
             "BrowserStack", "Open Network for Digital Commerce", "Aadhaar", "Salesforce", "Snowflake Inc.",

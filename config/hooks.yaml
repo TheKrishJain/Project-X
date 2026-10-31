@@ -98,19 +98,19 @@ formats:
     name: "One-Liner"
     description: "Punchy standalone post strictly under 120 characters."
     post_count: 1
-    weight: 1.0
+    weight: 0.2
 
   - id: "short_insight"
     name: "Short Insight"
     description: "Single post with 2-4 tight lines (120-280 chars total)."
     post_count: 1
-    weight: 1.0
+    weight: 0.5
 
   - id: "mini_case_study"
     name: "Mini Case Study"
     description: "Structured single post: Hook, turning point, and core takeaway (200-400 chars)."
     post_count: 1
-    weight: 1.0
+    weight: 1.5
 
   - id: "thread"
     name: "Thread"
@@ -118,7 +118,7 @@ formats:
     post_count: 4
     min_posts: 4
     max_posts: 6
-    weight: 1.0
+    weight: 2.0
 
 # Supported Threads Topic Tags (Exactly one per post, no '#' in text)
 topic_tags:
