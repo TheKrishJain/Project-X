@@ -1,6 +1,6 @@
 """Main orchestration CLI for auto-poster.
 
-Resolves schedule, generates posts, dispatches to X and Threads,
+Resolves schedule, generates posts via google-genai, dispatches to X and Threads,
 and records history and usage.
 """
 
@@ -17,10 +17,8 @@ from typing import Any
 from dotenv import load_dotenv
 
 from src.generate import (
-    generate_posts,
-    load_recent_history,
+    generate_content,
     load_schedule,
-    load_style_guide,
     resolve_plan,
 )
 from src.post_threads import post_to_threads
@@ -34,9 +32,13 @@ HISTORY_FILE = DATA_DIR / "history.json"
 
 def record_history(
     plan_data: dict[str, Any],
-    posts: list[str],
+    topic: str,
+    x_posts: list[str],
+    threads_posts: list[str],
     x_ids: list[str],
     threads_ids: list[str],
+    critique_score: int,
+    critique_reason: str,
     path: Path = HISTORY_FILE,
 ) -> None:
     """Append execution result to data/history.json."""
@@ -55,12 +57,17 @@ def record_history(
     entry = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "slot": plan_data.get("slot"),
+        "date": plan_data.get("date"),
         "weekday": plan_data.get("weekday"),
         "pillar": plan_data.get("pillar"),
         "industry": plan_data.get("industry"),
+        "topic": topic,
+        "critique_score": critique_score,
+        "critique_reason": critique_reason,
         "is_x_thread": plan_data.get("is_x_thread"),
         "is_threads_thread": plan_data.get("is_threads_thread"),
-        "posts": posts,
+        "x_posts": x_posts,
+        "threads_posts": threads_posts,
         "x_post_ids": x_ids,
         "threads_post_ids": threads_ids,
     }
@@ -71,12 +78,17 @@ def record_history(
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Auto-poster for X and Threads")
+    parser = argparse.ArgumentParser(description="Auto-poster for X and Threads using Gemini")
     parser.add_argument(
         "--slot",
         choices=["auto", "morning", "night"],
         default=os.getenv("SLOT", "auto"),
         help="Slot override (morning/night/auto)",
+    )
+    parser.add_argument(
+        "--date",
+        default=os.getenv("DATE", None),
+        help="Date or ISO string (e.g. 2026-10-31)",
     )
     parser.add_argument(
         "--day",
@@ -107,95 +119,98 @@ def main() -> int:
     )
 
     args = parser.parse_args()
+    date_val = args.date or args.day
 
-    # 1. Load configuration and state
     schedule = load_schedule()
-    style_guide = load_style_guide()
-    recent_history = load_recent_history()
-
-    # 2. Resolve plan for current slot & day
     plan = resolve_plan(
         schedule=schedule,
         slot=args.slot,
-        day=args.day,
+        date=date_val,
         force_pillar=args.force_pillar,
     )
 
-    print("=" * 60)
+    print("=" * 64)
     print(f"Auto-Poster Run [{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}]")
-    print(f"  Slot:           {plan.slot}")
-    print(f"  Weekday:        {plan.weekday.capitalize()}")
-    print(f"  Pillar:         {plan.pillar}")
+    print(f"  Slot:              {plan.slot}")
+    print(f"  Date / Weekday:    {plan.date.strftime('%Y-%m-%d')} ({plan.weekday.capitalize()})")
+    print(f"  Pillar:            {plan.pillar}")
     if plan.industry:
-        print(f"  Industry:       {plan.industry}")
-    print(f"  X format:       {'Thread' if plan.is_x_thread else 'Single Post'}")
-    print(f"  Threads format: {'Thread' if plan.is_threads_thread else 'Single Post'}")
-    print(f"  Total planned:  {plan.num_posts} post(s)")
-    print(f"  Dry run mode:   {args.dry_run}")
-    print("=" * 60)
+        print(f"  Industry:          {plan.industry}")
+    print(f"  Search Grounding:  {plan.use_google_search}")
+    print(f"  X format:          {'Thread (4-5 posts)' if plan.is_x_thread else 'Single Post'}")
+    print(f"  Threads format:    {'Thread (4-5 posts)' if plan.is_threads_thread else 'Single Post'}")
+    print(f"  Dry run mode:      {args.dry_run or args.preview}")
+    print("=" * 64)
 
-    # 3. Generate content
-    posts = generate_posts(
-        plan=plan,
-        style_guide=style_guide,
-        recent_history=recent_history,
+    # 1. Generate content with google-genai
+    content = generate_content(
+        slot=plan.slot,
+        date=plan.date,
+        force_pillar=plan.pillar,
         dry_run=args.dry_run or args.preview,
     )
 
-    print(f"\n[Generated {len(posts)} post(s)]")
-    for i, p in enumerate(posts, start=1):
-        print(f"--- Post {i} ({len(p)} chars) ---\n{p}\n")
+    print(f"\n[Topic]: {content.topic}")
+    print(f"[Self-Critique Score]: {content.critique_score}/10 ({content.critique_reason})")
+
+    print(f"\n--- X Content ({len(content.x_posts)} item(s)) ---")
+    for i, p in enumerate(content.x_posts, start=1):
+        print(f"X [{i}/{len(content.x_posts)}] ({len(p)}/270 chars):\n{p}\n")
+
+    print(f"--- Threads Content ({len(content.threads_posts)} item(s)) ---")
+    for i, p in enumerate(content.threads_posts, start=1):
+        print(f"Threads [{i}/{len(content.threads_posts)}] ({len(p)}/480 chars):\n{p}\n")
 
     if args.preview:
         print("[preview] Preview complete. No posts dispatched.")
         return 0
 
-    # 4. Route posts to platforms according to schedule rules
-    # Thu: thread on both
-    # Tue/Sat: thread on Threads only, single post on X
-    # Other: single post on both
-    x_posts = posts if plan.is_x_thread else [posts[0]]
-    threads_posts = posts if plan.is_threads_thread else [posts[0]]
-
     x_ids: list[str] = []
     threads_ids: list[str] = []
 
-    # 5. Dispatch to X
+    # 2. Dispatch to X
     if args.target in ("all", "x"):
-        print(f"\n[Dispatching to X ({len(x_posts)} post(s))]...")
+        print(f"\n[Dispatching to X ({len(content.x_posts)} post(s))]...")
         try:
-            x_ids = post_to_x(x_posts, dry_run=args.dry_run)
+            x_ids = post_to_x(content.x_posts, dry_run=args.dry_run)
             print(f"[X] Successfully posted: {x_ids}")
         except Exception as e:
             print(f"[X] Failed to post: {e}", file=sys.stderr)
             if not args.dry_run:
-                # Do not abort threads if X fails, continue or raise
                 pass
 
-    # 6. Dispatch to Threads
+    # 3. Dispatch to Threads
     if args.target in ("all", "threads"):
-        print(f"\n[Dispatching to Threads ({len(threads_posts)} post(s))]...")
+        print(f"\n[Dispatching to Threads ({len(content.threads_posts)} post(s))]...")
         try:
-            threads_ids = post_to_threads(threads_posts, dry_run=args.dry_run)
+            threads_ids = post_to_threads(content.threads_posts, dry_run=args.dry_run)
             print(f"[Threads] Successfully posted: {threads_ids}")
         except Exception as e:
             print(f"[Threads] Failed to post: {e}", file=sys.stderr)
             if not args.dry_run:
                 pass
 
-    # 7. Record to history if at least one post was made (or in dry run)
-    if not args.preview:
-        plan_dict = {
-            "slot": plan.slot,
-            "weekday": plan.weekday,
-            "pillar": plan.pillar,
-            "industry": plan.industry,
-            "is_x_thread": plan.is_x_thread,
-            "is_threads_thread": plan.is_threads_thread,
-        }
-        record_history(plan_dict, posts, x_ids, threads_ids)
-        print(f"\n[history] Run logged to {HISTORY_FILE.relative_to(HISTORY_FILE.parent.parent)}")
-
+    # 4. Record to history
+    plan_dict = {
+        "slot": plan.slot,
+        "date": plan.date.isoformat(),
+        "weekday": plan.weekday,
+        "pillar": plan.pillar,
+        "industry": plan.industry,
+        "is_x_thread": plan.is_x_thread,
+        "is_threads_thread": plan.is_threads_thread,
+    }
+    record_history(
+        plan_data=plan_dict,
+        topic=content.topic,
+        x_posts=content.x_posts,
+        threads_posts=content.threads_posts,
+        x_ids=x_ids,
+        threads_ids=threads_ids,
+        critique_score=content.critique_score,
+        critique_reason=content.critique_reason,
+    )
+    print(f"\n[history] Run logged to {HISTORY_FILE.relative_to(HISTORY_FILE.parent.parent)}")
     print("\nRun completed successfully.")
     return 0
 
