@@ -1,11 +1,12 @@
 """Content generation engine for auto-poster using google-genai SDK.
 
 Features:
+- Optional X generation via ENABLE_X (default: false)
 - Slot + Date resolution according to config/schedule.yaml
 - config/style.md used as system instruction
 - History buffer passing the last 50 topics (strict anti-repetition)
 - Google Search grounding for real-world business & AI pillars
-- Strict JSON output: {pillar, topic, x_posts, threads_posts}
+- Strict JSON output: {pillar, topic, threads_posts, [x_posts]}
 - Regex rejection for banned phrases, hashtags, em dashes, URLs in X posts
 - Self-critique pass (scores 1-10; regenerates if < 7, max 3 attempts)
 """
@@ -133,7 +134,7 @@ def load_recent_history(path: Path | None = None, limit: int = 50) -> list[str]:
                 if topic and str(topic).strip():
                     topics.append(str(topic).strip())
                 else:
-                    posts = item.get("posts") or item.get("x_posts") or []
+                    posts = item.get("posts") or item.get("threads_posts") or item.get("x_posts") or []
                     if posts:
                         first_line = str(posts[0]).strip().split("\n")[0]
                         topics.append(first_line[:90])
@@ -147,12 +148,12 @@ def resolve_plan(
     slot: str | None = None,
     date: datetime | date | str | None = None,
     force_pillar: str | None = None,
+    enable_x: bool = False,
 ) -> PostPlan:
     """Resolve slot, date, weekday, pillar, and thread configuration."""
     dt = parse_date_input(date)
     weekday = dt.strftime("%A").lower()
 
-    # Determine slot if not explicitly specified
     if not slot or slot == "auto":
         # 02:00 to 11:59 UTC (approx 07:30 to 17:29 IST) is morning, else night
         slot = "morning" if 2 <= dt.hour < 12 else "night"
@@ -163,13 +164,13 @@ def resolve_plan(
     thread_rules = schedule.get("threads_rules", {})
     day_rule = thread_rules.get(weekday, thread_rules.get("default", {}))
 
-    is_x_thread: bool = day_rule.get("x_thread", False)
+    is_x_thread: bool = day_rule.get("x_thread", False) if enable_x else False
     is_threads_thread: bool = day_rule.get("threads_thread", False)
 
     min_posts = day_rule.get("min_posts", 4)
     max_posts = day_rule.get("max_posts", 5)
 
-    x_post_count = random.randint(min_posts, max_posts) if is_x_thread else 1
+    x_post_count = (random.randint(min_posts, max_posts) if is_x_thread else 1) if enable_x else 0
     threads_post_count = random.randint(min_posts, max_posts) if is_threads_thread else 1
 
     # Pillar resolution
@@ -219,7 +220,6 @@ def extract_json(raw_text: str) -> dict[str, Any]:
     """Extract and parse JSON object from raw LLM output."""
     cleaned = raw_text.strip()
 
-    # Check for markdown code fences
     fence_match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", cleaned)
     if fence_match:
         cleaned = fence_match.group(1).strip()
@@ -231,7 +231,6 @@ def extract_json(raw_text: str) -> dict[str, Any]:
     except json.JSONDecodeError:
         pass
 
-    # Find outermost matching curly braces
     start = cleaned.find("{")
     end = cleaned.rfind("}")
     if start != -1 and end != -1 and end > start:
@@ -249,112 +248,90 @@ def extract_json(raw_text: str) -> dict[str, Any]:
 def validate_and_sanitize(
     candidate: dict[str, Any],
     plan: PostPlan,
+    enable_x: bool = False,
 ) -> tuple[bool, str, dict[str, Any]]:
-    """Validate candidate output against strict regex and structural rules.
-
-    Rejects on:
-    - Banned phrases ("Here's the thing", "Let that sink in", "game-changer", etc.)
-    - Hashtags (#...)
-    - Em dashes (— or –)
-    - URLs in x_posts
-    - Character limits (>270 for X, >480 for Threads)
-    - Rhetorical question openers
-    """
+    """Validate candidate output against strict regex and structural rules."""
     topic = candidate.get("topic")
     if not topic or not isinstance(topic, str):
         return False, "Missing or empty 'topic' string.", candidate
 
-    x_posts = candidate.get("x_posts")
     threads_posts = candidate.get("threads_posts")
-
-    if not isinstance(x_posts, list) or not x_posts:
-        return False, "Invalid or empty 'x_posts' list.", candidate
     if not isinstance(threads_posts, list) or not threads_posts:
         return False, "Invalid or empty 'threads_posts' list.", candidate
-
-    # Validate post counts
-    if plan.is_x_thread and not (4 <= len(x_posts) <= 5):
-        return False, f"X thread requires 4-5 posts, got {len(x_posts)}.", candidate
-    if not plan.is_x_thread and len(x_posts) != 1:
-        x_posts = [x_posts[0]]  # Trim to single post
 
     if plan.is_threads_thread and not (4 <= len(threads_posts) <= 5):
         return False, f"Threads thread requires 4-5 posts, got {len(threads_posts)}.", candidate
     if not plan.is_threads_thread and len(threads_posts) != 1:
-        threads_posts = [threads_posts[0]]  # Trim to single post
+        threads_posts = [threads_posts[0]]
 
-    sanitized_x: list[str] = []
     sanitized_th: list[str] = []
-
-    # Check X posts
-    for idx, post in enumerate(x_posts, start=1):
-        text = str(post).strip()
-
-        # Reject URLs in X posts
-        if re.search(r"https?://|www\.", text, re.IGNORECASE):
-            return False, f"X post {idx} contains an outbound URL, which is forbidden.", candidate
-
-        # Reject Em dashes
-        if re.search(r"[—–]", text):
-            return False, f"X post {idx} contains forbidden em dash.", candidate
-
-        # Reject Hashtags
-        if re.search(r"#\w+", text):
-            return False, f"X post {idx} contains forbidden hashtag.", candidate
-
-        # Reject Banned Phrases
-        for banned in BANNED_PHRASES:
-            if re.search(rf"\b{re.escape(banned)}\b", text, re.IGNORECASE):
-                return False, f"X post {idx} contains banned phrase '{banned}'.", candidate
-
-        # Reject rhetorical opener on first post
-        if idx == 1:
-            first_line = text.splitlines()[0].strip()
-            for pat in RHETORICAL_PATTERNS:
-                if pat.search(first_line):
-                    return False, f"X post 1 opens with a rhetorical question: '{first_line}'.", candidate
-
-        # Strict character limit: <= 270 chars
-        if len(text) > 270:
-            return False, f"X post {idx} exceeds 270 characters ({len(text)} chars).", candidate
-
-        sanitized_x.append(text)
-
-    # Check Threads posts
     for idx, post in enumerate(threads_posts, start=1):
         text = str(post).strip()
 
-        # Reject Em dashes
         if re.search(r"[—–]", text):
             return False, f"Threads post {idx} contains forbidden em dash.", candidate
 
-        # Reject Hashtags
         if re.search(r"#\w+", text):
             return False, f"Threads post {idx} contains forbidden hashtag.", candidate
 
-        # Reject Banned Phrases
         for banned in BANNED_PHRASES:
             if re.search(rf"\b{re.escape(banned)}\b", text, re.IGNORECASE):
                 return False, f"Threads post {idx} contains banned phrase '{banned}'.", candidate
 
-        # Reject rhetorical opener on first post
         if idx == 1:
             first_line = text.splitlines()[0].strip()
             for pat in RHETORICAL_PATTERNS:
                 if pat.search(first_line):
                     return False, f"Threads post 1 opens with a rhetorical question: '{first_line}'.", candidate
 
-        # Strict character limit: <= 480 chars
         if len(text) > 480:
             return False, f"Threads post {idx} exceeds 480 characters ({len(text)} chars).", candidate
 
         sanitized_th.append(text)
 
+    sanitized_x: list[str] = []
+    if enable_x:
+        x_posts = candidate.get("x_posts")
+        if not isinstance(x_posts, list) or not x_posts:
+            return False, "Invalid or empty 'x_posts' list.", candidate
+
+        if plan.is_x_thread and not (4 <= len(x_posts) <= 5):
+            return False, f"X thread requires 4-5 posts, got {len(x_posts)}.", candidate
+        if not plan.is_x_thread and len(x_posts) != 1:
+            x_posts = [x_posts[0]]
+
+        for idx, post in enumerate(x_posts, start=1):
+            text = str(post).strip()
+
+            if re.search(r"https?://|www\.", text, re.IGNORECASE):
+                return False, f"X post {idx} contains an outbound URL, which is forbidden.", candidate
+
+            if re.search(r"[—–]", text):
+                return False, f"X post {idx} contains forbidden em dash.", candidate
+
+            if re.search(r"#\w+", text):
+                return False, f"X post {idx} contains forbidden hashtag.", candidate
+
+            for banned in BANNED_PHRASES:
+                if re.search(rf"\b{re.escape(banned)}\b", text, re.IGNORECASE):
+                    return False, f"X post {idx} contains banned phrase '{banned}'.", candidate
+
+            if idx == 1:
+                first_line = text.splitlines()[0].strip()
+                for pat in RHETORICAL_PATTERNS:
+                    if pat.search(first_line):
+                        return False, f"X post 1 opens with a rhetorical question: '{first_line}'.", candidate
+
+            if len(text) > 270:
+                return False, f"X post {idx} exceeds 270 characters ({len(text)} chars).", candidate
+
+            sanitized_x.append(text)
+
     valid_candidate = {
         "pillar": plan.pillar,
         "topic": topic.strip(),
-        "x_posts": sanitized_x,
         "threads_posts": sanitized_th,
+        "x_posts": sanitized_x,
     }
     return True, "Passed regex and structural validation.", valid_candidate
 
@@ -364,12 +341,16 @@ def run_self_critique(
     model: str,
     candidate: dict[str, Any],
     style_guide: str,
+    enable_x: bool = False,
 ) -> tuple[int, str]:
     """Second LLM call: scores 1-10 on 'specific, human, non-generic, matches style.md'."""
     from google.genai import types
 
-    x_posts_formatted = "\n---\n".join(candidate.get("x_posts", []))
     th_posts_formatted = "\n---\n".join(candidate.get("threads_posts", []))
+    x_posts_section = ""
+    if enable_x and candidate.get("x_posts"):
+        x_posts_formatted = "\n---\n".join(candidate.get("x_posts", []))
+        x_posts_section = f"\nX POSTS:\n{x_posts_formatted}\n"
 
     critique_prompt = f"""
 You are an uncompromising editor evaluating social posts written by a sharp founder from Mumbai.
@@ -387,12 +368,9 @@ CANDIDATE UNDER REVIEW:
 Topic: {candidate.get('topic')}
 Pillar: {candidate.get('pillar')}
 
-X POSTS:
-{x_posts_formatted}
-
 THREADS POSTS:
 {th_posts_formatted}
-
+{x_posts_section}
 INSTRUCTIONS:
 Rate this candidate strictly from 1 to 10 (1 = generic AI fluff, 10 = flawless, specific, human founder insight).
 Return ONLY a JSON object:
@@ -417,12 +395,11 @@ Return ONLY a JSON object:
         reason = str(data.get("reason", "No reason provided."))
         return score, reason
     except Exception as e:
-        # Fallback if critique call fails
         print(f"[self_critique] Notice: critique API call encountered error ({e}), default pass.")
         return 8, "Self-critique pass fallback accepted."
 
 
-def _fallback_sample(plan: PostPlan) -> GeneratedContent:
+def _fallback_sample(plan: PostPlan, enable_x: bool = False) -> GeneratedContent:
     """Style-matched fallback for offline/dry-run testing."""
     samples: dict[str, dict[str, Any]] = {
         "tech_for_business": {
@@ -485,16 +462,8 @@ def _fallback_sample(plan: PostPlan) -> GeneratedContent:
     }
 
     base = samples.get(plan.pillar, samples["business_strategy"])
-    x_posts = base["x_posts"]
     th_posts = base["threads_posts"]
-
-    if plan.is_x_thread and len(x_posts) == 1:
-        x_posts = [
-            "Slack started as a video game company called Glitch. The game burned through $10M and shut down in 2012.",
-            "During development, Stewart Butterfield's team built an IRC chat wrapper with file sharing and search so they could stay in sync across US and Canada.",
-            "When the game died, they realized the game was useless, but working without their internal chat tool felt impossible.",
-            "They polished that internal utility and launched Slack in 2013.\n\nYour most durable product is sometimes the tool you built just to survive.",
-        ]
+    x_posts = base["x_posts"] if enable_x else []
 
     if plan.is_threads_thread and len(th_posts) == 1:
         th_posts = [
@@ -502,6 +471,14 @@ def _fallback_sample(plan: PostPlan) -> GeneratedContent:
             "During development, the team built an IRC chat wrapper with file sharing and search so engineers could coordinate across Vancouver and San Francisco.",
             "When Glitch failed, they realized working without their internal chat tool was painful. It had search indexing, notifications, and clean channels.",
             "They pivoted everything to that tool and launched Slack in 2013. By 2020 Salesforce acquired it for $27.7B.\n\nYour best product is sometimes the internal tool you built just to survive.",
+        ]
+
+    if enable_x and plan.is_x_thread and len(x_posts) == 1:
+        x_posts = [
+            "Slack started as a video game company called Glitch. The game burned through $10M and shut down in 2012.",
+            "During development, Stewart Butterfield's team built an IRC chat wrapper with file sharing and search so they could stay in sync across US and Canada.",
+            "When the game died, they realized the game was useless, but working without their internal chat tool felt impossible.",
+            "They polished that internal utility and launched Slack in 2013.\n\nYour most durable product is sometimes the tool you built just to survive.",
         ]
 
     return GeneratedContent(
@@ -521,21 +498,15 @@ def generate_content(
     force_pillar: str | None = None,
     dry_run: bool = False,
     max_attempts: int = 3,
+    enable_x: bool | None = None,
 ) -> GeneratedContent:
-    """Generate social posts for X and Threads using google-genai SDK.
+    """Generate social posts for Threads (and optionally X) using google-genai SDK."""
+    if enable_x is None:
+        enable_x = os.getenv("ENABLE_X", "false").lower() == "true"
 
-    Enforces:
-    - Slot & Date resolution via schedule.yaml
-    - System instruction from style.md
-    - Buffer of last 50 topics from history.json
-    - Google Search grounding for tech/marketing/business/AI
-    - Strict JSON output schema {pillar, topic, x_posts, threads_posts}
-    - Regex checks (no banned phrases, no hashtags, no em dashes, no URLs on X)
-    - Self-critique pass (score >= 7, max 3 attempts)
-    """
     schedule = load_schedule()
     style_guide = load_style_guide()
-    plan = resolve_plan(schedule, slot=slot, date=date, force_pillar=force_pillar)
+    plan = resolve_plan(schedule, slot=slot, date=date, force_pillar=force_pillar, enable_x=enable_x)
     past_topics = load_recent_history(limit=50)
 
     api_key = os.getenv("GEMINI_API_KEY", "").strip()
@@ -545,7 +516,7 @@ def generate_content(
     if not api_key:
         if is_dry_run:
             print("[generate] No GEMINI_API_KEY found, using style-matched mock fallback for dry run.")
-            return _fallback_sample(plan)
+            return _fallback_sample(plan, enable_x=enable_x)
         raise ValueError("GEMINI_API_KEY environment variable is required.")
 
     from google import genai
@@ -572,18 +543,35 @@ GOOGLE SEARCH GROUNDING ENABLED:
 - If unsure about a metric or feature, search and choose another verified example.
 """
 
+    x_prompt_requirements = ""
+    schema_spec = f"""{{
+  "pillar": "{plan.pillar}",
+  "topic": "<short 4-8 word topic or company summary>",
+  "threads_posts": ["<post 1>", ...]
+}}"""
+
+    if enable_x:
+        x_prompt_requirements = f"""
+- X Format: {"Thread of 4-5 posts" if plan.is_x_thread else "Single post (exactly 1 post)"}
+- Every post in x_posts MUST be strictly <= 270 characters.
+- NEVER include URLs or links in x_posts.
+"""
+        schema_spec = f"""{{
+  "pillar": "{plan.pillar}",
+  "topic": "<short 4-8 word topic or company summary>",
+  "x_posts": ["<post 1>", ...],
+  "threads_posts": ["<post 1>", ...]
+}}"""
+
     thread_rules_prompt = f"""
 SLOT & PLATFORM FORMAT REQUIREMENTS:
 - Slot: {plan.slot} | Weekday: {plan.weekday.capitalize()} | Pillar: {plan.pillar}
 {f"- Industry focus: {plan.industry}" if plan.industry else ""}
-- X Format: {"Thread of 4-5 posts" if plan.is_x_thread else "Single post (exactly 1 post)"}
 - Threads Format: {"Thread of 4-5 posts" if plan.is_threads_thread else "Single post (exactly 1 post)"}
-
+{x_prompt_requirements}
 LENGTH AND FORMAT RULES:
-- Every post in x_posts MUST be strictly <= 270 characters.
-- Every post in threads_posts MUST be strictly <= 480 characters (can be richer, more detailed than X).
-- First post in both arrays MUST be a punchy hook that establishes the core idea without clickbait or rhetorical questions.
-- NEVER include URLs or links in x_posts.
+- Every post in threads_posts MUST be strictly <= 480 characters.
+- First post MUST be a punchy hook that establishes the core idea without clickbait or rhetorical questions.
 - NO hashtags. NO em dashes (— or –).
 - NO banned phrases: "Here's the thing", "Let that sink in", "game-changer", "In today's world", "unlock", "delve".
 """
@@ -603,16 +591,10 @@ LENGTH AND FORMAT RULES:
 
 OUTPUT JSON SPECIFICATION:
 Return ONLY a valid JSON object matching this schema:
-{{
-  "pillar": "{plan.pillar}",
-  "topic": "<short 4-8 word topic or company summary>",
-  "x_posts": ["<post 1>", ...],
-  "threads_posts": ["<post 1>", ...]
-}}
+{schema_spec}
 """
 
         try:
-            # 1. Call Gemini for candidate generation
             config = types.GenerateContentConfig(
                 system_instruction=style_guide,
                 temperature=0.75,
@@ -628,19 +610,22 @@ Return ONLY a valid JSON object matching this schema:
             raw_text = response.text or ""
             candidate = extract_json(raw_text)
 
-            # 2. Strict regex and structural validation
-            is_valid, validation_msg, valid_candidate = validate_and_sanitize(candidate, plan)
+            is_valid, validation_msg, valid_candidate = validate_and_sanitize(
+                candidate=candidate,
+                plan=plan,
+                enable_x=enable_x,
+            )
             if not is_valid:
                 print(f"[generate] Attempt {attempt}/{max_attempts} validation rejected: {validation_msg}")
                 last_error_or_critique = validation_msg
                 continue
 
-            # 3. Self-Critique Pass
             score, critique_reason = run_self_critique(
                 client=client,
                 model=model_name,
                 candidate=valid_candidate,
                 style_guide=style_guide,
+                enable_x=enable_x,
             )
 
             print(f"[generate] Attempt {attempt}/{max_attempts} critique score: {score}/10 -> {critique_reason}")
@@ -649,11 +634,10 @@ Return ONLY a valid JSON object matching this schema:
                 last_error_or_critique = f"Self-critique score was {score}/10 ({critique_reason}). Must be more specific, human, and non-generic."
                 continue
 
-            # Passed all validations and critique
             return GeneratedContent(
                 pillar=valid_candidate["pillar"],
                 topic=valid_candidate["topic"],
-                x_posts=valid_candidate["x_posts"],
+                x_posts=valid_candidate.get("x_posts", []),
                 threads_posts=valid_candidate["threads_posts"],
                 critique_score=score,
                 critique_reason=critique_reason,
@@ -664,17 +648,15 @@ Return ONLY a valid JSON object matching this schema:
             print(f"[generate] Attempt {attempt}/{max_attempts} error: {e}")
             last_error_or_critique = str(e)
 
-    # If all attempts exhausted in dry run, return fallback
     if is_dry_run:
         print("[generate] Max attempts reached in dry run, falling back to reference sample.")
-        return _fallback_sample(plan)
+        return _fallback_sample(plan, enable_x=enable_x)
 
     raise RuntimeError(
         f"Failed to generate acceptable posts after {max_attempts} attempts. Last issue: {last_error_or_critique}"
     )
 
 
-# Backwards compatibility helper
 def generate_posts(
     plan: PostPlan,
     style_guide: str,
@@ -687,5 +669,6 @@ def generate_posts(
         date=plan.date,
         force_pillar=plan.pillar,
         dry_run=dry_run,
+        enable_x=plan.is_x_thread,
     )
     return content.threads_posts if plan.is_threads_thread else content.x_posts

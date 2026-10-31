@@ -1,13 +1,14 @@
 """Main orchestration CLI for auto-poster.
 
 Features:
-- CLI args: --slot morning|night, --dry-run
+- CLI args: --slot morning|night, --dry-run, --enable-x
+- Optional X integration via ENABLE_X (default: false); Threads works fully standalone
 - Random sleep 0-35 min for natural jitter (skipped on dry-run)
 - Content generation via google-genai
-- Independent dispatch to Threads and X (failure on one doesn't block the other)
-- History recording in data/history.json & X budget tracking in data/x_usage.json
+- Independent dispatch to Threads (and optionally X)
+- History recording in data/history.json (and x_usage.json only when X is enabled)
 - Clear execution logging
-- Exits non-zero (code 1) if both platforms fail, triggering GitHub Actions alert emails
+- Exits non-zero (code 1) on complete failure, triggering GitHub Actions alert emails
 """
 
 from __future__ import annotations
@@ -72,8 +73,8 @@ def record_history(
         "topic": topic,
         "critique_score": critique_score,
         "critique_reason": critique_reason,
-        "is_x_thread": plan_data.get("is_x_thread"),
-        "is_threads_thread": plan_data.get("is_threads_thread"),
+        "is_x_thread": plan_data.get("is_x_thread", False),
+        "is_threads_thread": plan_data.get("is_threads_thread", False),
         "x_posts": x_posts,
         "threads_posts": threads_posts,
         "x_post_ids": x_ids,
@@ -86,7 +87,7 @@ def record_history(
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Auto-poster for X and Threads")
+    parser = argparse.ArgumentParser(description="Auto-poster for Threads (and optionally X)")
     parser.add_argument(
         "--slot",
         choices=["morning", "night", "auto"],
@@ -98,6 +99,12 @@ def main() -> int:
         action="store_true",
         default=os.getenv("DRY_RUN", "false").lower() == "true",
         help="Simulate execution without posting or sleeping",
+    )
+    parser.add_argument(
+        "--enable-x",
+        action="store_true",
+        default=os.getenv("ENABLE_X", "false").lower() == "true",
+        help="Enable X generation and posting (default: false)",
     )
     # Optional flags for testing convenience
     parser.add_argument(
@@ -118,9 +125,10 @@ def main() -> int:
 
     args = parser.parse_args()
     date_val = args.date or args.day
-
-    # 1. Random jitter sleep: 0 to 35 minutes (0 to 2100 seconds)
+    enable_x = args.enable_x
     is_dry_run = args.dry_run
+
+    # 1. Random jitter sleep: 0 to 35 minutes (skipped on dry-run or --no-sleep)
     if not is_dry_run and not args.no_sleep:
         jitter_seconds = random.randint(0, 35 * 60)
         minutes, seconds = divmod(jitter_seconds, 60)
@@ -135,6 +143,7 @@ def main() -> int:
         schedule=schedule,
         slot=args.slot,
         date=date_val,
+        enable_x=enable_x,
     )
 
     print("=" * 64)
@@ -144,8 +153,8 @@ def main() -> int:
     print(f"  Pillar:         {plan.pillar}")
     if plan.industry:
         print(f"  Industry:       {plan.industry}")
-    print(f"  X format:       {'Thread (4-5 posts)' if plan.is_x_thread else 'Single Post'}")
     print(f"  Threads format: {'Thread (4-5 posts)' if plan.is_threads_thread else 'Single Post'}")
+    print(f"  X Enabled:      {enable_x}" + (f" ({'Thread (4-5 posts)' if plan.is_x_thread else 'Single Post'})" if enable_x else " (Skipping X generation & posting)"))
     print(f"  Dry run mode:   {is_dry_run}")
     print("=" * 64)
 
@@ -155,26 +164,25 @@ def main() -> int:
         date=plan.date,
         force_pillar=plan.pillar,
         dry_run=is_dry_run,
+        enable_x=enable_x,
     )
 
     print(f"\n[Generated Topic]: {content.topic}")
     print(f"[Self-Critique]:   Score {content.critique_score}/10 ({content.critique_reason})")
 
-    print(f"\n--- X Posts ({len(content.x_posts)} item(s)) ---")
-    for idx, post in enumerate(content.x_posts, start=1):
-        print(f"  [{idx}/{len(content.x_posts)}] ({len(post)}/270 chars):\n    {post.replace(chr(10), chr(10) + '    ')}")
-
     print(f"\n--- Threads Posts ({len(content.threads_posts)} item(s)) ---")
     for idx, post in enumerate(content.threads_posts, start=1):
         print(f"  [{idx}/{len(content.threads_posts)}] ({len(post)}/480 chars):\n    {post.replace(chr(10), chr(10) + '    ')}")
 
-    # 4. Dispatch independently to Threads and X
-    x_success = False
+    if enable_x and content.x_posts:
+        print(f"\n--- X Posts ({len(content.x_posts)} item(s)) ---")
+        for idx, post in enumerate(content.x_posts, start=1):
+            print(f"  [{idx}/{len(content.x_posts)}] ({len(post)}/270 chars):\n    {post.replace(chr(10), chr(10) + '    ')}")
+
+    # 4. Dispatch to platforms
     threads_success = False
-    x_ids: list[str] = []
     threads_ids: list[str] = []
 
-    # Dispatch to Threads
     print("\n" + "-" * 40)
     print(f"[Threads Dispatch] Posting {len(content.threads_posts)} item(s)...")
     try:
@@ -184,16 +192,20 @@ def main() -> int:
     except Exception as e:
         print(f"[Threads Dispatch] FAILED: {e}", file=sys.stderr)
 
-    # Dispatch to X
-    print("\n" + "-" * 40)
-    print(f"[X Dispatch] Posting {len(content.x_posts)} item(s)...")
-    try:
-        x_ids = post_to_x(content.x_posts, dry_run=is_dry_run)
-        # If budget guard skipped X entirely, it still counts as cleanly handled
-        x_success = True
-        print(f"[X Dispatch] Succeeded! Tweet IDs: {x_ids}")
-    except Exception as e:
-        print(f"[X Dispatch] FAILED: {e}", file=sys.stderr)
+    x_success = False
+    x_ids: list[str] = []
+
+    if enable_x and content.x_posts:
+        print("\n" + "-" * 40)
+        print(f"[X Dispatch] Posting {len(content.x_posts)} item(s)...")
+        try:
+            x_ids = post_to_x(content.x_posts, dry_run=is_dry_run, enable_x=enable_x)
+            x_success = True
+            print(f"[X Dispatch] Succeeded! Tweet IDs: {x_ids}")
+        except Exception as e:
+            print(f"[X Dispatch] FAILED: {e}", file=sys.stderr)
+    else:
+        print("\n[X Dispatch] Skipped (ENABLE_X is false).")
 
     print("\n" + "=" * 64)
 
@@ -204,25 +216,30 @@ def main() -> int:
         "weekday": plan.weekday,
         "pillar": plan.pillar,
         "industry": plan.industry,
-        "is_x_thread": plan.is_x_thread,
+        "is_x_thread": plan.is_x_thread if enable_x else False,
         "is_threads_thread": plan.is_threads_thread,
     }
     record_history(
         plan_data=plan_dict,
         topic=content.topic,
-        x_posts=content.x_posts,
+        x_posts=content.x_posts if enable_x else [],
         threads_posts=content.threads_posts,
-        x_ids=x_ids,
+        x_ids=x_ids if enable_x else [],
         threads_ids=threads_ids,
         critique_score=content.critique_score,
         critique_reason=content.critique_reason,
     )
     print(f"[main] Recorded execution to {HISTORY_FILE.relative_to(HISTORY_FILE.parent.parent)}")
 
-    # 6. Exit evaluation: exit non-zero if BOTH platforms failed
-    if not threads_success and not x_success and not is_dry_run:
-        print("[main] FATAL: Both Threads and X dispatches failed! Exiting with code 1.", file=sys.stderr)
-        return 1
+    # 6. Exit evaluation: exit non-zero on failure
+    if enable_x:
+        if not threads_success and not x_success and not is_dry_run:
+            print("[main] FATAL: Both Threads and X dispatches failed! Exiting with code 1.", file=sys.stderr)
+            return 1
+    else:
+        if not threads_success and not is_dry_run:
+            print("[main] FATAL: Threads dispatch failed! Exiting with code 1.", file=sys.stderr)
+            return 1
 
     print("[main] Execution completed successfully.")
     return 0

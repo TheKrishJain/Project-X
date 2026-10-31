@@ -1,6 +1,7 @@
 """X (Twitter) API v2 posting integration using tweepy.Client.
 
 Features:
+- ENABLE_X guard: when false (default), skips X completely, requires zero X_* credentials, and leaves x_usage.json untouched.
 - OAuth 1.0a authentication via X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN, X_ACCESS_SECRET
 - Tweet posting and sequential thread chaining with in_reply_to_tweet_id
 - Budget guard in data/x_usage.json:
@@ -76,16 +77,30 @@ def get_x_credentials() -> dict[str, str]:
     }
 
 
-def post_to_x(posts: list[str], dry_run: bool = False, usage_file: Path | None = None) -> list[str]:
+def post_to_x(
+    posts: list[str],
+    dry_run: bool = False,
+    usage_file: Path | None = None,
+    enable_x: bool | None = None,
+) -> list[str]:
     """Publish a single post or sequential thread to X using tweepy.Client.
 
-    Applies budget guard:
+    Guard:
+    - If ENABLE_X is false (default): skips X entirely, touches zero usage files, and requires no credentials.
+
+    Budget guard:
     - If count >= X_MONTHLY_CAP: skip X entirely.
     - If count + len(posts) > X_MONTHLY_CAP: post only posts[0].
     - Never retries a create_tweet call to prevent duplicate posts.
 
     Returns the list of created Tweet IDs.
     """
+    # 0. Check ENABLE_X guard
+    is_enabled = enable_x if enable_x is not None else (os.getenv("ENABLE_X", "false").lower() == "true")
+    if not is_enabled:
+        print("[post_x] ENABLE_X is false. Skipping X entirely (no credentials checked, x_usage.json untouched).")
+        return []
+
     if not posts:
         return []
 

@@ -1,8 +1,11 @@
 # Auto-Poster
 
-An automated, typed Python 3.11 social publishing engine that generates and posts high-signal content to **X** (Twitter) and **Meta Threads** via **GitHub Actions**.
+An automated, typed Python 3.11 social publishing engine that generates and posts high-signal content to **Meta Threads** (and optionally **X**) via **GitHub Actions**.
 
 Built around a sharp founder voice with zero fluff, strict style constraints, and deterministic scheduling.
+
+> [!TIP]
+> **X is optional!** By default, `ENABLE_X="false"`. Threads operates 100% standalone out of the box with zero X credentials required and zero writes to `data/x_usage.json`.
 
 ---
 
@@ -14,8 +17,8 @@ Inspired by a sharp young founder from Mumbai who reads extensively, notices und
 - **No hashtags, no rhetorical openers:** Starts directly with the observation.
 - **Specific over generic:** Features real companies, specific features, and concrete numbers.
 - **Strict character budget:**
-  - **X posts:** Each post strictly $\le 270$ characters. No URLs.
-  - **Threads posts:** Each post $\le 480$ characters (can be richer, more detailed).
+  - **Threads posts:** Each post $\le 480$ characters (rich, punchy context).
+  - **X posts (when enabled):** Each post strictly $\le 270$ characters. No URLs.
 
 ---
 
@@ -24,20 +27,20 @@ Inspired by a sharp young founder from Mumbai who reads extensively, notices und
 The schedule is configured in [`config/schedule.yaml`](file:///c:/Users/msi/Desktop/ProjectX/config/schedule.yaml):
 
 ### Morning Slot (Cron: `45 3 * * *` ~ 09:15 AM IST / 03:45 AM UTC)
-| Day | Pillar | X Format | Threads Format |
+| Day | Pillar | Threads Format | X Format (if `ENABLE_X=true`) |
 | :--- | :--- | :--- | :--- |
 | **Monday** | `tech_for_business` | Single Post | Single Post |
-| **Tuesday** | `marketing_case_study` | Single Post | **Thread (4–5 posts)** |
+| **Tuesday** | `marketing_case_study` | **Thread (4–5 posts)** | Single Post |
 | **Wednesday** | `ai_hack` | Single Post | Single Post |
 | **Thursday** | `business_strategy` | **Thread (4–5 posts)** | **Thread (4–5 posts)** |
 | **Friday** | `marketing_case_study` or `tech_for_business` (random) | Single Post | Single Post |
-| **Saturday** | `ai_hack` | Single Post | **Thread (4–5 posts)** |
+| **Saturday** | `ai_hack` | **Thread (4–5 posts)** | Single Post |
 | **Sunday** | `business_strategy` | Single Post | Single Post |
 
 ### Night Slot (Cron: `15 15 * * *` ~ 08:45 PM IST / 03:15 PM UTC)
 - **Distribution:** `psychology_insight` (75%) vs. `motivation` (25%).
 - **Rotating industries:** `finance`, `marketing`, `operations`, `startups`.
-- **Format:** Single post on both platforms.
+- **Format:** Single post.
 
 ---
 
@@ -54,12 +57,12 @@ auto-poster/
 │   └── style.md                       # Persona guidelines, banned words, sample posts
 ├── data/
 │   ├── history.json                   # Log of published posts, topics & platform IDs
-│   └── x_usage.json                   # Monthly X API quota tracker {"month", "count"}
+│   └── x_usage.json                   # Monthly X API quota tracker (used only if ENABLE_X=true)
 ├── src/
 │   ├── __init__.py
 │   ├── generate.py                    # google-genai, search grounding, self-critique
-│   ├── post_x.py                      # tweepy.Client, OAuth 1.0a, budget guard
 │   ├── post_threads.py                # Graph API v1.0, 5s delay, token refresh
+│   ├── post_x.py                      # tweepy.Client, OAuth 1.0a, budget guard (optional)
 │   └── main.py                        # CLI runner, jitter sleep, independent dispatch
 ├── .env.example                       # Template for local environment secrets
 ├── .gitignore
@@ -71,24 +74,31 @@ auto-poster/
 
 ## 🔑 Required Secrets
 
-Navigate to **Settings > Secrets and variables > Actions** in your GitHub repository and configure the following secrets:
+Navigate to **Settings > Secrets and variables > Actions** in your GitHub repository and configure your secrets:
 
+### 1. Core Secrets (Required for Threads & AI Generation)
 | Secret | Purpose | Source / Notes |
 | :--- | :--- | :--- |
 | `GEMINI_API_KEY` | Google Gemini API key | [Google AI Studio](https://aistudio.google.com/) |
 | `THREADS_USER_ID` | Numeric Meta Threads user ID | Meta Graph API user lookup (`/me`) |
 | `THREADS_ACCESS_TOKEN` | Long-lived Meta Threads user token | Meta Developers Portal (60-day token) |
+| `GH_PAT` | GitHub Personal Access Token | Classic PAT with `repo` scope (or fine-grained with Actions Secrets write permissions); required by `refresh-threads-token.yml` to automatically update `THREADS_ACCESS_TOKEN`. |
+
+### 2. Optional X (Twitter) Secrets (Only if `ENABLE_X="true"`)
+| Secret | Purpose | Source / Notes |
+| :--- | :--- | :--- |
 | `X_API_KEY` | X Developer App Consumer API Key | [X Developer Portal](https://developer.x.com/) |
 | `X_API_SECRET` | X Developer App Consumer API Secret | X Developer Portal |
 | `X_ACCESS_TOKEN` | X User Access Token (Read & Write) | X Developer Portal |
 | `X_ACCESS_SECRET` | X User Access Token Secret | X Developer Portal |
-| `GH_PAT` | GitHub Personal Access Token | Classic PAT with `repo` scope (or fine-grained with Actions Secrets write permissions); required by `refresh-threads-token.yml` to automatically update `THREADS_ACCESS_TOKEN`. |
+
+*(If `ENABLE_X="false"`, you do not need to add any X secrets).*
 
 ---
 
 ## 🧪 Steps for First Dry Run
 
-You can verify the entire pipeline end-to-end without spending X quota or posting to live feeds.
+You can verify the entire pipeline end-to-end without spending quota or publishing to live feeds.
 
 ### Option A: Local Dry Run
 
@@ -101,10 +111,10 @@ You can verify the entire pipeline end-to-end without spending X quota or postin
    pip install -r requirements.txt
    ```
 
-2. **Configure local environment (optional):**
+2. **Configure `.env`:**
    ```bash
    cp .env.example .env
-   # Add your GEMINI_API_KEY to test live LLM generation, or leave blank to test mock fallback
+   # Add your GEMINI_API_KEY and THREADS credentials (leave ENABLE_X="false")
    ```
 
 3. **Execute dry run:**
@@ -133,8 +143,8 @@ You can verify the entire pipeline end-to-end without spending X quota or postin
    - Topic selection & Gemini generation.
    - Self-critique score & reasoning (target $\ge 7/10$).
    - Regex & character limit validation.
-   - Mock posting simulation to Threads and X.
-   - History and usage recording.
+   - Mock posting simulation to Threads.
+   - History recording in `data/history.json`.
 
 ---
 
@@ -144,10 +154,10 @@ You can verify the entire pipeline end-to-end without spending X quota or postin
 - **Triggers:**
   - `45 3 * * *`: Morning slot (~09:15 AM IST)
   - `15 15 * * *`: Night slot (~08:45 PM IST)
-  - `workflow_dispatch`: Manual execution with slot (`morning`/`night`) and `dry_run` inputs.
+  - `workflow_dispatch`: Manual execution with slot (`morning`/`night`), `dry_run`, and optional `enable_x`.
 - **Concurrency Guard:** Uses concurrency group `poster` (`cancel-in-progress: false`) to ensure runs never overlap.
-- **Independent Dispatch:** Posting to Threads and X happens independently; a failure on one platform does not block the other.
-- **Alerting:** Exits non-zero **only if both platforms fail**, triggering GitHub's automated failure notification email.
+- **Independent Dispatch:** When `ENABLE_X="true"`, posting to Threads and X happens independently; a failure on one platform does not block the other.
+- **Alerting:** Exits non-zero **if dispatch fails**, triggering GitHub's automated failure notification email.
 
 ### 2. Threads Token Refresh ([`.github/workflows/refresh-threads-token.yml`](file:///.github/workflows/refresh-threads-token.yml))
 - **Triggers:** Automatically on the **1st and 15th** of every month (`cron: '0 0 1,15 * *'`).
@@ -161,22 +171,6 @@ You can verify the entire pipeline end-to-end without spending X quota or postin
 > [!NOTE]
 > GitHub automatically disables scheduled cron workflows in public repositories that experience **60 consecutive days of inactivity** (no git commits).
 > 
-> In **Auto-Poster**, after every successful morning and night run, [`post.yml`](file:///.github/workflows/post.yml) automatically commits updated [`data/history.json`](file:///c:/Users/msi/Desktop/ProjectX/data/history.json) and [`data/x_usage.json`](file:///c:/Users/msi/Desktop/ProjectX/data/x_usage.json) back to the repository using `[skip ci]`.
+> In **Auto-Poster**, after every successful morning and night run, [`post.yml`](file:///.github/workflows/post.yml) automatically commits updated [`data/history.json`](file:///c:/Users/msi/Desktop/ProjectX/data/history.json) back to the repository using `[skip ci]`.
 > 
 > Because new commits are pushed twice every day, your repository is **kept continuously active**, permanently preventing GitHub from pausing or disabling the cron schedules.
-
----
-
-## 📊 X Budget Guard & Anti-Spam Safeguards
-
-1. **Monthly Hard Cap:**
-   [`data/x_usage.json`](file:///c:/Users/msi/Desktop/ProjectX/data/x_usage.json) tracks `{ "month": "YYYY-MM", "count": N }` and resets `count` on calendar month rollover.
-   - Enforces `X_MONTHLY_CAP` (default: **85**).
-   - If `count >= cap`: skips X posting entirely.
-   - If `count + len(x_posts) > cap`: posts only the lead post `x_posts[0]`.
-
-2. **Zero Retries:**
-   [`src/post_x.py`](file:///c:/Users/msi/Desktop/ProjectX/src/post_x.py) never retries a `create_tweet` call that fails or times out, preventing accidental duplicate posts on your timeline.
-
-3. **Natural Jitter:**
-   Live runs introduce a random sleep between **0 and 35 minutes** (`random.randint(0, 35 * 60)`) to ensure post timestamps vary organically like a human creator.

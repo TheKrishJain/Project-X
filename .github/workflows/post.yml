@@ -21,6 +21,11 @@ on:
         required: true
         default: false
         type: boolean
+      enable_x:
+        description: 'Enable X posting (Default: false)'
+        required: false
+        default: false
+        type: boolean
 
 concurrency:
   group: poster
@@ -54,13 +59,15 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash' }}
+          THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+          THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
+          # Optional X Configuration (only needed if ENABLE_X="true")
+          ENABLE_X: ${{ github.event.inputs.enable_x || vars.ENABLE_X || 'false' }}
           X_API_KEY: ${{ secrets.X_API_KEY }}
           X_API_SECRET: ${{ secrets.X_API_SECRET }}
           X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
           X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET || secrets.X_ACCESS_TOKEN_SECRET }}
           X_MONTHLY_CAP: ${{ vars.X_MONTHLY_CAP || '85' }}
-          THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
-          THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
         run: |
           # 1. Determine slot based on trigger
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
@@ -70,12 +77,19 @@ jobs:
             else
               DRY_RUN_FLAG=""
             fi
+            if [ "${{ github.event.inputs.enable_x }}" = "true" ]; then
+              ENABLE_X_FLAG="--enable-x"
+            else
+              ENABLE_X_FLAG=""
+            fi
           elif [ "${{ github.event.schedule }}" = "45 3 * * *" ]; then
             SLOT="morning"
             DRY_RUN_FLAG=""
+            ENABLE_X_FLAG=""
           elif [ "${{ github.event.schedule }}" = "15 15 * * *" ]; then
             SLOT="night"
             DRY_RUN_FLAG=""
+            ENABLE_X_FLAG=""
           else
             # Fallback based on current UTC hour
             HOUR=$(date -u +%H)
@@ -85,21 +99,27 @@ jobs:
               SLOT="morning"
             fi
             DRY_RUN_FLAG=""
+            ENABLE_X_FLAG=""
           fi
 
-          echo "Executing auto-poster for slot: $SLOT with flags: $DRY_RUN_FLAG"
-          python -m src.main --slot "$SLOT" $DRY_RUN_FLAG
+          echo "Executing auto-poster for slot: $SLOT (dry_run: $DRY_RUN_FLAG, enable_x: $ENABLE_X_FLAG)"
+          python -m src.main --slot "$SLOT" $DRY_RUN_FLAG $ENABLE_X_FLAG
 
-      - name: Commit data/history.json and data/x_usage.json
+      - name: Commit history (and X usage if enabled)
         if: always()
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/history.json data/x_usage.json
+          git add data/history.json
+          # Only add x_usage.json if modified
+          if [ "${{ vars.ENABLE_X }}" = "true" ] || [ "${{ github.event.inputs.enable_x }}" = "true" ]; then
+            git add data/x_usage.json || true
+          fi
+
           if git diff --staged --quiet; then
-            echo "No changes in data/history.json or data/x_usage.json to commit."
+            echo "No changes in data files to commit."
           else
-            git commit -m "chore: auto-update post history and x usage [skip ci]"
+            git commit -m "chore: auto-update post history [skip ci]"
             git pull --rebase origin main || true
             git push origin HEAD:${{ github.ref_name }}
           fi
