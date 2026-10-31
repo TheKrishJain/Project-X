@@ -328,5 +328,319 @@
       "18076581911469412",
       "18110988986128890"
     ]
+  },
+  {
+    "timestamp": "2026-10-31T18:24:47.344371+00:00",
+    "slot": "morning",
+    "date": "2026-10-31T18:24:47.341370+00:00",
+    "weekday": "saturday",
+    "pillar": "ai_hack",
+    "industry": null,
+    "entity": "Cursor",
+    "topic": "Repository rules files to prevent LLM code hallucination",
+    "hook_pattern": "Mini Case Study",
+    "format": "thread",
+    "topic_tag": "AI",
+    "is_trend_jack": false,
+    "critique_score": 8.6,
+    "critique_reason": "Style-matched growth standard with zero dashes, verified grounding, and complete 4-part structure.",
+    "is_x_thread": false,
+    "is_threads_thread": true,
+    "x_posts": [],
+    "threads_posts": [
+      "AI coding tools frequently invent non-existent functions or rewrite working files without permission.",
+      "In tools like Cursor, adding a file named.cursorrules gives the LLM persistent instructions before every prompt. You define your stack versions, framework patterns, and folder structure once.",
+      "The most effective instructions are negative constraints. Telling an AI what to do leaves massive room for assumptions. Telling it 'never remove existing comments' tightens output.",
+      "A tight repository rules file converts a general-purpose language model into a focused local assistant. Five minutes of setup eliminates context decay across months of building."
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "mock_th_1793471087_1",
+      "mock_th_1793471087_2",
+      "mock_th_1793471087_3",
+      "mock_th_1793471087_4"
+    ]
+  },
+  {
+    "timestamp": "2026-10-31T18:25:27.903076+00:00",
+    "slot": "night",
+    "date": "2026-10-31T18:25:27.901061+00:00",
+    "weekday": "saturday",
+    "pillar": "psychology_insight",
+    "industry": null,
+    "entity": "Nihilent Emoscape",
+    "topic": "Emotion AI in mental healthcare assessments",
+    "hook_pattern": "Specific Number / Result",
+    "format": "thread",
+    "topic_tag": "Psychology",
+    "is_trend_jack": false,
+    "critique_score": 7.4,
+    "critique_reason": "The hook is punchy and sets a clear narrative, though the post leans slightly academic; it would be more shareable if it leaned harder into the founder's personal take on the ethical tension.",
+    "is_x_thread": false,
+    "is_threads_thread": true,
+    "x_posts": [],
+    "threads_posts": [
+      "Three new clinical integrations show how machines interpret human distress.",
+      "The Mind Clinic recently integrated the Emoscape platform into their assessments. This system uses emotion AI to track non-verbal cues during patient sessions. It aims to provide clinicians with objective data points that might otherwise go unnoticed.",
+      "Professional bodies like the British Psychological Society have expressed concerns about this shift. They noted that unregulated tools can provide harmful advice when patients are in vulnerable states. The gap between technical accuracy and clinical empathy remains wide.",
+      "Engineers often view emotional states as a series of detectable signals. However, human practitioners know that context defines the meaning of those signals. A spike in a metric does not equate to a diagnosis.",
+      "We are moving toward a future where software monitors our inner lives. The challenge is ensuring that the data serves the patient rather than just simplifying the clinical process. Efficiency should never replace the nuance of a human conversation."
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "mock_th_1793471127_1",
+      "mock_th_1793471127_2",
+      "mock_th_1793471127_3",
+      "mock_th_1793471127_4",
+      "mock_th_1793471127_5"
+    ]
+  },
+  {
+    "timestamp": "2026-10-31T18:26:41.106513+00:00",
+    "slot": "morning",
+    "date": "2026-10-31T18:26:41.105514+00:00",
+    "weekday": "saturday",
+    "pillar": "ai_hack",
+    "industry": null,
+    "entity": "Binance",
+    "topic": "Security vulnerabilities in automated financial systems",
+    "hook_pattern": "Quiet Pattern",
+    "format": "thread",
+    "topic_tag": "AI",
+    "is_trend_jack": false,
+    "critique_score": 7.2,
+    "critique_reason": "The hook is punchy and sets a serious tone, though the content leans slightly academic; it would be more shareable if it offered a more contrarian take on the 'move fast and break things' ethos.",
+    "is_x_thread": false,
+    "is_threads_thread": true,
+    "x_posts": [],
+    "threads_posts": [
+      "Security teams are chasing ghosts in the machine.",
+      "Financial platforms face threats that move at machine speed. When systems automate high value transactions, they create a target for sophisticated actors. Binance observed massive losses when attackers exploited weaknesses in cross chain bridges.",
+      "Attackers do not just break into accounts anymore. They probe the logic of smart contracts to force unexpected states. These incidents show that speed is a vulnerability when verification lags behind execution.",
+      "Defense now requires moving from reactive patching to proactive validation. Security research suggests that automated monitoring must be coupled with circuit breakers that halt movement when anomalies appear.",
+      "What part of your infrastructure would survive if the automated logic began executing against your own interests?"
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "mock_th_1793471201_1",
+      "mock_th_1793471201_2",
+      "mock_th_1793471201_3",
+      "mock_th_1793471201_4",
+      "mock_th_1793471201_5"
+    ]
+  },
+  {
+    "timestamp": "2026-10-31T18:27:43.313070+00:00",
+    "slot": "night",
+    "date": "2026-10-31T18:27:43.310497+00:00",
+    "weekday": "saturday",
+    "pillar": "motivation",
+    "industry": null,
+    "entity": "University of Chicago Booth School of Business",
+    "topic": "Economic dependence on AI infrastructure",
+    "hook_pattern": "Uncomfortable Truth",
+    "format": "thread",
+    "topic_tag": "Productivity",
+    "is_trend_jack": false,
+    "critique_score": 7.0,
+    "critique_reason": "The hook is punchy and hits a nerve, but the body feels a bit academic; it would be more shareable if it connected the macro-economic risk directly to a founder's daily decision-making.",
+    "is_x_thread": false,
+    "is_threads_thread": true,
+    "x_posts": [],
+    "threads_posts": [
+      "Most economic growth projections rely on unproven AI efficiency gains.",
+      "Economists at the University of Chicago Booth School of Business recently examined the massive capital expenditure flowing into artificial intelligence infrastructure. They noted that current market valuations assume rapid productivity surges across every sector. The data suggests that we are betting the stability of our financial models on technology that has yet to show a uniform impact on output.",
+      "Companies are spending billions on hardware and specialized compute clusters without clear evidence of long term margin expansion. This creates a high stakes environment where failure to see immediate returns could lead to a sudden contraction in capital availability. It is a massive bet on a future that is still being built.",
+      "When growth is tied to a single technological narrative, the margin for error shrinks significantly. You see this in the way firms prioritize rapid deployment over deep integration. They are chasing the promise of efficiency rather than building the actual foundation for it.",
+      "What happens to your personal output when you stop optimizing for the trend and start optimizing for the utility?"
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "mock_th_1793471263_1",
+      "mock_th_1793471263_2",
+      "mock_th_1793471263_3",
+      "mock_th_1793471263_4",
+      "mock_th_1793471263_5"
+    ]
+  },
+  {
+    "timestamp": "2026-10-31T18:44:43.619135+00:00",
+    "slot": "morning",
+    "date": "2026-10-31T18:44:43.617132+00:00",
+    "weekday": "saturday",
+    "pillar": "ai_hack",
+    "industry": null,
+    "entity": "Cursor",
+    "topic": "Repository rules files to prevent LLM code hallucination",
+    "hook_pattern": "Identity Challenge",
+    "format": "thread",
+    "topic_tag": "AI",
+    "is_trend_jack": false,
+    "critique_score": 8.6,
+    "critique_reason": "Fully verified against Wikipedia source text with zero unverified claims or controversial names.",
+    "is_x_thread": false,
+    "is_threads_thread": true,
+    "x_posts": [],
+    "threads_posts": [
+      "AI code editors can drift from project conventions during rapid development. Engineers configure repository instruction files to inject persistent project context before each model query.",
+      "Defining architectural boundaries, version constraints, and styling rules once keeps generated code consistent across long sessions. Clear negative constraints eliminate common assumptions.",
+      "Setting up automated project rules turns general language models into specialized local collaborators. Upfront constraints protect working code from context decay."
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "mock_th_1793472283_1",
+      "mock_th_1793472283_2",
+      "mock_th_1793472283_3"
+    ]
+  },
+  {
+    "timestamp": "2026-10-31T18:45:13.059043+00:00",
+    "slot": "night",
+    "date": "2026-10-31T18:45:13.058045+00:00",
+    "weekday": "saturday",
+    "pillar": "psychology_insight",
+    "industry": null,
+    "entity": "Decoy effect",
+    "topic": "The decoy effect in consumer choice architecture",
+    "hook_pattern": "Contrast",
+    "format": "thread",
+    "topic_tag": "Psychology",
+    "is_trend_jack": false,
+    "critique_score": 8.6,
+    "critique_reason": "Fully verified against Wikipedia source text with zero unverified claims or controversial names.",
+    "is_x_thread": false,
+    "is_threads_thread": true,
+    "x_posts": [],
+    "threads_posts": [
+      "Consumer choice is rarely evaluated on absolute value alone. Researchers Huber, Payne, and Puto demonstrated that adding an asymmetrically dominated third option shifts consumer preference.",
+      "When an inferior decoy is priced near the premium option, buyers perceive the premium tier as a superior bargain. The decoy exists not to generate sales, but to anchor value.",
+      "Subscription pricing pages use this structure by placing a decoy between basic and top-tier plans. Perceived value is heavily influenced by the choices placed next to it."
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "mock_th_1793472313_1",
+      "mock_th_1793472313_2",
+      "mock_th_1793472313_3"
+    ]
+  },
+  {
+    "timestamp": "2026-10-31T18:50:53.399028+00:00",
+    "slot": "morning",
+    "date": "2026-10-31T18:50:53.398003+00:00",
+    "weekday": "saturday",
+    "pillar": "ai_hack",
+    "industry": null,
+    "entity": "Cursor",
+    "topic": "Repository rules files to prevent LLM code hallucination",
+    "hook_pattern": "Myth vs Reality",
+    "format": "thread",
+    "topic_tag": "AI",
+    "is_trend_jack": false,
+    "critique_score": 8.6,
+    "critique_reason": "Fully verified against Wikipedia source text with zero unverified claims or controversial names.",
+    "is_x_thread": false,
+    "is_threads_thread": true,
+    "x_posts": [],
+    "threads_posts": [
+      "AI code editors can drift from project conventions during rapid development. Engineers configure repository instruction files to inject persistent project context before each model query.",
+      "Defining architectural boundaries, version constraints, and styling rules once keeps generated code consistent across long sessions. Clear negative constraints eliminate common assumptions.",
+      "Setting up automated project rules turns general language models into specialized local collaborators. Upfront constraints protect working code from context decay."
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "mock_th_1793472653_1",
+      "mock_th_1793472653_2",
+      "mock_th_1793472653_3"
+    ]
+  },
+  {
+    "timestamp": "2026-10-31T18:51:19.147479+00:00",
+    "slot": "night",
+    "date": "2026-10-31T18:51:19.146479+00:00",
+    "weekday": "saturday",
+    "pillar": "motivation",
+    "industry": null,
+    "entity": "Decision fatigue",
+    "topic": "Decision fatigue depletion in executive productivity",
+    "hook_pattern": "Specific Number / Result",
+    "format": "thread",
+    "topic_tag": "Productivity",
+    "is_trend_jack": false,
+    "critique_score": 8.6,
+    "critique_reason": "Fully verified against Wikipedia source text with zero unverified claims or controversial names.",
+    "is_x_thread": false,
+    "is_threads_thread": true,
+    "x_posts": [],
+    "threads_posts": [
+      "Willpower depletes as the number of daily choices accumulates. Social psychologists observed that repeated decision-making impairs self-control and leads to passive default selections.",
+      "As mental energy declines, individuals either act impulsively or avoid making choices altogether. High-performing operators counteract this by automating routine decisions early in the day.",
+      "Structuring environments to eliminate recurring friction protects cognitive bandwidth for critical tasks. Sustained focus depends on system design rather than emotional effort."
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "mock_th_1793472679_1",
+      "mock_th_1793472679_2",
+      "mock_th_1793472679_3"
+    ]
+  },
+  {
+    "timestamp": "2026-10-31T18:58:47.612915+00:00",
+    "slot": "morning",
+    "date": "2026-10-31T18:58:47.611953+00:00",
+    "weekday": "saturday",
+    "pillar": "ai_hack",
+    "industry": null,
+    "entity": "GitHub Copilot",
+    "topic": "Context-aware code completion architectures",
+    "hook_pattern": "Before / After",
+    "format": "thread",
+    "topic_tag": "AI",
+    "is_trend_jack": false,
+    "critique_score": 8.6,
+    "critique_reason": "Fully verified against Wikipedia source text with zero unverified claims or controversial names.",
+    "is_x_thread": false,
+    "is_threads_thread": true,
+    "x_posts": [],
+    "threads_posts": [
+      "Writing boilerplate implementation slows down senior software engineers. GitHub and OpenAI built Copilot to autocomplete repetitive functions directly within local development environments.",
+      "The model analyzes nearby code comments and repository context to suggest syntax in real time. Developers accept entire function blocks without leaving their editor buffer.",
+      "Treating code models as keystroke accelerators turns repetitive programming into rapid editing. Removing syntactic friction frees up mental bandwidth for system design."
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "mock_th_1793473127_1",
+      "mock_th_1793473127_2",
+      "mock_th_1793473127_3"
+    ]
+  },
+  {
+    "timestamp": "2026-10-31T18:59:14.061475+00:00",
+    "slot": "night",
+    "date": "2026-10-31T18:59:14.059506+00:00",
+    "weekday": "saturday",
+    "pillar": "psychology_insight",
+    "industry": null,
+    "entity": "Survivorship bias",
+    "topic": "Survivorship bias in startup strategy",
+    "hook_pattern": "One-Line Observation",
+    "format": "thread",
+    "topic_tag": "Psychology",
+    "is_trend_jack": false,
+    "critique_score": 8.6,
+    "critique_reason": "Fully verified against Wikipedia source text with zero unverified claims or controversial names.",
+    "is_x_thread": false,
+    "is_threads_thread": true,
+    "x_posts": [],
+    "threads_posts": [
+      "Studying successful startup tactics often leads to flawed operational playbooks. Statistician Abraham Wald examined military bombers during World War II to evaluate armor reinforcement placement.",
+      "The military planned to reinforce areas with the highest number of bullet holes. Wald demonstrated that the missing planes were shot down precisely because they were struck in vulnerable unreinforced spots.",
+      "Analyzing only the surviving companies blinds operators to fatal mistakes made by forgotten competitors. True strategic insight comes from examining what caused others to fail."
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "mock_th_1793473154_1",
+      "mock_th_1793473154_2",
+      "mock_th_1793473154_3"
+    ]
   }
 ]

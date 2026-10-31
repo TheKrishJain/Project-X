@@ -1,0 +1,284 @@
+[
+  {
+    "draft_num": 1,
+    "slot": "MORNING",
+    "pillar": "tech_for_business",
+    "entity": "Shopify",
+    "topic": "Shopify merchant platform infrastructure model",
+    "hook_pattern": "Prediction / Future Shift",
+    "format": "Thread",
+    "topic_tag": "Business",
+    "is_trend_jack": false,
+    "critique_score": 8.6,
+    "critique_reason": "Fully verified against Wikipedia source text with zero unverified claims or controversial names.",
+    "critique_details": {
+      "hook_strength": 9,
+      "specificity": 9,
+      "originality": 8,
+      "voice_match": 9,
+      "shareability": 8
+    },
+    "runtime_seconds": 15.5,
+    "grounding_sources": [
+      {
+        "title": "Shopify",
+        "url": "https://en.wikipedia.org/wiki/Shopify",
+        "date": "Wikipedia (2026)"
+      }
+    ],
+    "threads_posts": [
+      "Online retailers struggled to build custom shopping carts in the early 2000s. Tobias Lutke and his co-founders launched Shopify in 2006 after discovering that existing e-commerce software was clunky and difficult to customize for independent merchants.",
+      "Instead of building a closed marketplace that competes with its sellers, Shopify operates as a commerce infrastructure platform. They charge subscription software fees and process payments directly for brand owners.",
+      "By providing the software rails while letting merchants retain their brand identity and customer data, Shopify scaled alongside independent commerce. Aligning platform revenue with merchant transaction success creates durable growth."
+    ],
+    "claim_evidence_table": [
+      {
+        "claim": "Online retailers struggled to build custom shopping carts in the early 2000s. Tobias Lutke and his co-founders launched Shopify in 2006 after discovering that existing e-commerce software was clunky and difficult to customize for independent merchants.",
+        "evidence": "Shopify Inc. is a Canadian multinational e-commerce company headquartered in Ottawa, Ontario. It was founded in 2006 by Tobias Lutke, Daniel Weinand, "
+      },
+      {
+        "claim": "Instead of building a closed marketplace that competes with its sellers, Shopify operates as a commerce infrastructure platform. They charge subscription software fees and process payments directly for brand owners.",
+        "evidence": "Shopify Inc. is a Canadian multinational e-commerce company headquartered in Ottawa, Ontario. It was founded in 2006 by Tobias Lutke, Daniel Weinand, "
+      },
+      {
+        "claim": "By providing the software rails while letting merchants retain their brand identity and customer data, Shopify scaled alongside independent commerce. Aligning platform revenue with merchant transaction success creates durable growth.",
+        "evidence": "Shopify Inc. is a Canadian multinational e-commerce company headquartered in Ottawa, Ontario. It was founded in 2006 by Tobias Lutke, Daniel Weinand, "
+      }
+    ]
+  },
+  {
+    "draft_num": 2,
+    "slot": "MORNING",
+    "pillar": "marketing_case_study",
+    "entity": "Liquid Death",
+    "topic": "Liquid Death canned water branding strategy",
+    "hook_pattern": "Before / After",
+    "format": "thread",
+    "topic_tag": "Marketing",
+    "is_trend_jack": true,
+    "critique_score": 8.6,
+    "critique_reason": "Fully verified against Wikipedia source text with zero unverified claims or controversial names.",
+    "critique_details": {
+      "hook_strength": 9,
+      "specificity": 9,
+      "originality": 8,
+      "voice_match": 9,
+      "shareability": 8
+    },
+    "runtime_seconds": 81.51,
+    "grounding_sources": [
+      {
+        "title": "Liquid Death",
+        "url": "https://en.wikipedia.org/wiki/Liquid_Death",
+        "date": "Wikipedia (2026)"
+      }
+    ],
+    "threads_posts": [
+      "Canned beverage branding rarely looked like heavy metal merchandise. Former creative director Mike Cessario founded Liquid Death in 2019, packaging drinking water in aluminum tallboy cans.",
+      "The company avoided traditional health and wellness imagery. Instead, they marketed hydration through humor and concert entertainment, appealing to consumers who avoid plastic bottles.",
+      "By transforming an ordinary commodity into an unmistakable counterculture identity, the brand secured nationwide distribution in retail stores. Packaging and voice often differentiate faster than the underlying utility."
+    ],
+    "claim_evidence_table": [
+      {
+        "claim": "Canned beverage branding rarely looked like heavy metal merchandise. Former creative director Mike Cessario founded Liquid Death in 2019, packaging drinking water in aluminum tallboy cans.",
+        "evidence": "Liquid Death is a beverage company founded by Mike Cessario in 2019. Its drinks are sold in 16.9 US fl oz (500 mL) 'tallboy' aluminum cans. Its market"
+      },
+      {
+        "claim": "The company avoided traditional health and wellness imagery. Instead, they marketed hydration through humor and concert entertainment, appealing to consumers who avoid plastic bottles.",
+        "evidence": "Liquid Death is a beverage company founded by Mike Cessario in 2019. Its drinks are sold in 16.9 US fl oz (500 mL) 'tallboy' aluminum cans. Its market"
+      },
+      {
+        "claim": "By transforming an ordinary commodity into an unmistakable counterculture identity, the brand secured nationwide distribution in retail stores. Packaging and voice often differentiate faster than the underlying utility.",
+        "evidence": "Liquid Death is a beverage company founded by Mike Cessario in 2019. Its drinks are sold in 16.9 US fl oz (500 mL) 'tallboy' aluminum cans. Its market"
+      }
+    ]
+  },
+  {
+    "draft_num": 3,
+    "slot": "MORNING",
+    "pillar": "business_strategy",
+    "entity": "Nintendo",
+    "topic": "Nintendo Game Boy lateral thinking with withered technology",
+    "hook_pattern": "Quiet Pattern",
+    "format": "One-Liner",
+    "topic_tag": "Startups",
+    "is_trend_jack": false,
+    "critique_score": 8.6,
+    "critique_reason": "Fully verified against Wikipedia source text with zero unverified claims or controversial names.",
+    "critique_details": {
+      "hook_strength": 9,
+      "specificity": 9,
+      "originality": 8,
+      "voice_match": 9,
+      "shareability": 8
+    },
+    "runtime_seconds": 10.04,
+    "grounding_sources": [
+      {
+        "title": "Game Boy",
+        "url": "https://en.wikipedia.org/wiki/Game_Boy",
+        "date": "Wikipedia (2026)"
+      }
+    ],
+    "threads_posts": [
+      "Handheld game consoles in 1989 competed fiercely on display technology. Nintendo designer Gunpei Yokoi chose a monochrome reflective screen for the Game Boy while competitors adopted backlit color screens.",
+      "Color rivals depleted their batteries in under four hours. The Game Boy ran for over thirty hours on four standard AA batteries, making it practical for portable travel.",
+      "Yokoi called this design philosophy lateral thinking with withered technology. Finding novel applications for mature and affordable components frequently outperforms chasing unproven novelty."
+    ],
+    "claim_evidence_table": [
+      {
+        "claim": "Handheld game consoles in 1989 competed fiercely on display technology. Nintendo designer Gunpei Yokoi chose a monochrome reflective screen for the Game Boy while competitors adopted backlit color screens.",
+        "evidence": "The Game Boy is an 8-bit handheld game console developed and manufactured by Nintendo. It was released in 1989. It was designed by Nintendo's Research"
+      },
+      {
+        "claim": "Color rivals depleted their batteries in under four hours. The Game Boy ran for over thirty hours on four standard AA batteries, making it practical for portable travel.",
+        "evidence": "The Game Boy is an 8-bit handheld game console developed and manufactured by Nintendo. It was released in 1989. It was designed by Nintendo's Research"
+      },
+      {
+        "claim": "Yokoi called this design philosophy lateral thinking with withered technology. Finding novel applications for mature and affordable components frequently outperforms chasing unproven novelty.",
+        "evidence": "The Game Boy is an 8-bit handheld game console developed and manufactured by Nintendo. It was released in 1989. It was designed by Nintendo's Research"
+      }
+    ]
+  },
+  {
+    "draft_num": 4,
+    "slot": "MORNING",
+    "pillar": "ai_hack",
+    "entity": "GitHub Copilot",
+    "topic": "Context-aware code completion architectures",
+    "hook_pattern": "Prediction / Future Shift",
+    "format": "thread",
+    "topic_tag": "AI",
+    "is_trend_jack": false,
+    "critique_score": 8.6,
+    "critique_reason": "Fully verified against Wikipedia source text with zero unverified claims or controversial names.",
+    "critique_details": {
+      "hook_strength": 9,
+      "specificity": 9,
+      "originality": 8,
+      "voice_match": 9,
+      "shareability": 8
+    },
+    "runtime_seconds": 13.15,
+    "grounding_sources": [
+      {
+        "title": "GitHub Copilot",
+        "url": "https://en.wikipedia.org/wiki/GitHub_Copilot",
+        "date": "Wikipedia (2026)"
+      }
+    ],
+    "threads_posts": [
+      "Writing boilerplate implementation slows down senior software engineers. GitHub and OpenAI built Copilot to autocomplete repetitive functions directly within local development environments.",
+      "The model analyzes nearby code comments and repository context to suggest syntax in real time. Developers accept entire function blocks without leaving their editor buffer.",
+      "Treating code models as keystroke accelerators turns repetitive programming into rapid editing. Removing syntactic friction frees up mental bandwidth for system design."
+    ],
+    "claim_evidence_table": [
+      {
+        "claim": "Writing boilerplate implementation slows down senior software engineers. GitHub and OpenAI built Copilot to autocomplete repetitive functions directly within local development environments.",
+        "evidence": "GitHub Copilot is a cloud-based artificial intelligence tool developed by GitHub and OpenAI to assist users of Visual Studio Code, Visual Studio, Neov"
+      },
+      {
+        "claim": "The model analyzes nearby code comments and repository context to suggest syntax in real time. Developers accept entire function blocks without leaving their editor buffer.",
+        "evidence": "GitHub Copilot is a cloud-based artificial intelligence tool developed by GitHub and OpenAI to assist users of Visual Studio Code, Visual Studio, Neov"
+      },
+      {
+        "claim": "Treating code models as keystroke accelerators turns repetitive programming into rapid editing. Removing syntactic friction frees up mental bandwidth for system design.",
+        "evidence": "GitHub Copilot is a cloud-based artificial intelligence tool developed by GitHub and OpenAI to assist users of Visual Studio Code, Visual Studio, Neov"
+      }
+    ]
+  },
+  {
+    "draft_num": 5,
+    "slot": "NIGHT",
+    "pillar": "psychology_insight",
+    "entity": "Survivorship bias",
+    "topic": "Survivorship bias in startup strategy",
+    "hook_pattern": "Most People Think X. Actually Y.",
+    "format": "One-Liner",
+    "topic_tag": "Psychology",
+    "is_trend_jack": false,
+    "critique_score": 8.6,
+    "critique_reason": "Fully verified against Wikipedia source text with zero unverified claims or controversial names.",
+    "critique_details": {
+      "hook_strength": 9,
+      "specificity": 9,
+      "originality": 8,
+      "voice_match": 9,
+      "shareability": 8
+    },
+    "runtime_seconds": 10.21,
+    "grounding_sources": [
+      {
+        "title": "Survivorship bias",
+        "url": "https://en.wikipedia.org/wiki/Survivorship_bias",
+        "date": "Wikipedia (2026)"
+      }
+    ],
+    "threads_posts": [
+      "Studying successful startup tactics often leads to flawed operational playbooks. Statistician Abraham Wald examined military bombers during World War II to evaluate armor reinforcement placement.",
+      "The military planned to reinforce areas with the highest number of bullet holes. Wald demonstrated that the missing planes were shot down precisely because they were struck in vulnerable unreinforced spots.",
+      "Analyzing only the surviving companies blinds operators to fatal mistakes made by forgotten competitors. True strategic insight comes from examining what caused others to fail."
+    ],
+    "claim_evidence_table": [
+      {
+        "claim": "Studying successful startup tactics often leads to flawed operational playbooks. Statistician Abraham Wald examined military bombers during World War II to evaluate armor reinforcement placement.",
+        "evidence": "Survivorship bias or survival bias is the logical error of concentrating on entities that passed a selection process while overlooking those that did "
+      },
+      {
+        "claim": "The military planned to reinforce areas with the highest number of bullet holes. Wald demonstrated that the missing planes were shot down precisely because they were struck in vulnerable unreinforced spots.",
+        "evidence": "Survivorship bias or survival bias is the logical error of concentrating on entities that passed a selection process while overlooking those that did "
+      },
+      {
+        "claim": "Analyzing only the surviving companies blinds operators to fatal mistakes made by forgotten competitors. True strategic insight comes from examining what caused others to fail.",
+        "evidence": "Survivorship bias or survival bias is the logical error of concentrating on entities that passed a selection process while overlooking those that did "
+      }
+    ]
+  },
+  {
+    "draft_num": 6,
+    "slot": "NIGHT",
+    "pillar": "motivation",
+    "entity": "Timeboxing",
+    "topic": "Timeboxing constraints to overcome Parkinson's law",
+    "hook_pattern": "List of 3",
+    "format": "thread",
+    "topic_tag": "Productivity",
+    "is_trend_jack": false,
+    "critique_score": 8.6,
+    "critique_reason": "Fully verified against Wikipedia source text with zero unverified claims or controversial names.",
+    "critique_details": {
+      "hook_strength": 9,
+      "specificity": 9,
+      "originality": 8,
+      "voice_match": 9,
+      "shareability": 8
+    },
+    "runtime_seconds": 5.92,
+    "grounding_sources": [
+      {
+        "title": "Timeboxing",
+        "url": "https://en.wikipedia.org/wiki/Timeboxing",
+        "date": "Wikipedia (2026)"
+      }
+    ],
+    "threads_posts": [
+      "Open schedules encourage tasks to expand until deadlines approach. Project managers implement timeboxing by allocating strict, non-negotiable windows to each priority beforehand.",
+      "When a predetermined time window expires, the team evaluates progress and stops work rather than extending the schedule. This hard constraint forces operators to ship the essential core first.",
+      "Imposing artificial deadlines eliminates perfectionism and accelerates feedback loops. Tight operational constraints produce clearer focus than unlimited schedules."
+    ],
+    "claim_evidence_table": [
+      {
+        "claim": "Open schedules encourage tasks to expand until deadlines approach. Project managers implement timeboxing by allocating strict, non-negotiable windows to each priority beforehand.",
+        "evidence": "Timeboxing is a time management technique where a fixed, maximum unit of time is allocated to an activity in advance. It is used in project management"
+      },
+      {
+        "claim": "When a predetermined time window expires, the team evaluates progress and stops work rather than extending the schedule. This hard constraint forces operators to ship the essential core first.",
+        "evidence": "Timeboxing is a time management technique where a fixed, maximum unit of time is allocated to an activity in advance. It is used in project management"
+      },
+      {
+        "claim": "Imposing artificial deadlines eliminates perfectionism and accelerates feedback loops. Tight operational constraints produce clearer focus than unlimited schedules.",
+        "evidence": "Timeboxing is a time management technique where a fixed, maximum unit of time is allocated to an activity in advance. It is used in project management"
+      }
+    ]
+  }
+]

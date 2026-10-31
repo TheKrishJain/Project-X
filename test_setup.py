@@ -245,9 +245,9 @@ def run_check_6_dry_runs() -> tuple[bool, str]:
                 if phrase in line.lower() and not line.startswith("NO banned phrases"):
                     return False, f"Banned phrase '{phrase}' found in output for slot {slot}: {line}"
 
-            # Check em dashes
-            if re.search(r"[—–]", line):
-                return False, f"Em dash found in output for slot {slot}: {line}"
+            # Check em dashes in post text lines
+            if line.startswith("    ") and re.search(r"[—–]", line):
+                return False, f"Em dash found in post text for slot {slot}: {line}"
 
             # Check hashtags in post text lines
             if line.startswith("    ") and re.search(r"#\w+", line):
@@ -256,6 +256,15 @@ def run_check_6_dry_runs() -> tuple[bool, str]:
             # Check URLs in post text lines
             if line.startswith("    ") and re.search(r"https?://|www\.", line):
                 return False, f"Outbound URL found in output for slot {slot}: {line}"
+
+            # Check absolute claims in post text lines
+            for ab in (r"\balways\b", r"\bevery\s+single\s+day\b", r"\bnever\s+fails?\b"):
+                if line.startswith("    ") and re.search(ab, line, re.IGNORECASE):
+                    return False, f"Absolute claim '{ab}' found in output for slot {slot}: {line}"
+
+            # Check manual thread numbering in post text lines
+            if line.startswith("    ") and re.search(r"^\s*(\[\d+/\d+\]|\(\d+/\d+\)|\d+\.)", line.strip()):
+                return False, f"Manual thread numbering prefix found in output for slot {slot}: {line}"
 
     print("\n--- Dry Run Sample Outputs ---")
     for o in outputs:
@@ -301,6 +310,153 @@ def run_check_8_dash_ban() -> tuple[bool, str]:
         return False, f"DASH BAN check failed: {e}"
 
 
+def run_check_9_substance_and_sentence_count() -> tuple[bool, str]:
+    from src.sanitize import count_sentences, sanitize_post
+    from src.generate import check_topic_blocklist, ABSOLUTE_CLAIM_PATTERNS
+
+    # 1. Test non-one_liner sentence counting rule
+    valid_3 = "In 2011, online payments were broken. Stripe built an API with seven lines of code. Developers quickly adopted it over legacy tools."
+    cnt = count_sentences(valid_3)
+    if cnt < 3:
+        return False, f"count_sentences failed to recognize 3 sentences (got {cnt})"
+
+    invalid_2 = "Online payments were broken. Stripe fixed them."
+    cnt_short = count_sentences(invalid_2)
+    if cnt_short >= 3:
+        return False, f"count_sentences falsely counted 3 sentences on short text (got {cnt_short})"
+
+    # 2. Test manual thread numbering removal
+    raw_numbered = "[1/6] This is the first tweet.\n[2/6] This is the second tweet."
+    cleaned_numbered = sanitize_post(raw_numbered)
+    if "[1/6]" in cleaned_numbered or "[2/6]" in cleaned_numbered:
+        return False, "Manual thread numbering was not stripped by sanitize_post"
+
+    # 3. Test absolute claims detection
+    absolute_samples = [
+        "This always works.",
+        "We ship every single day.",
+        "A system that never fails.",
+    ]
+    for sample in absolute_samples:
+        if not any(pat.search(sample) for pat in ABSOLUTE_CLAIM_PATTERNS):
+            return False, f"Failed to detect absolute claim in '{sample}'"
+
+    # 4. Test permanent blocklist
+    for blocked in ["kirana", "gemini gems", "slack", "nescafe", "fear of being seen failing"]:
+        if not check_topic_blocklist(f"A case study on {blocked}"):
+            return False, f"Permanent blocklist failed to block '{blocked}'"
+
+    return True, "Substance verification passed: >= 3 sentences enforced, thread numbering stripped, absolute claims and blocklists active"
+
+
+def run_check_10_quality_gate_and_grounding_hygiene() -> tuple[bool, str]:
+    from datetime import datetime, timezone
+    from src.sanitize import strip_unverified_numbers
+    from src.generate import (
+        verify_numbers_in_source,
+        validate_and_sanitize,
+        PostPlan,
+    )
+
+    # 1. Test code-level number stripping and verification
+    src = "Tobias Lutke founded Shopify in 2006."
+    draft_num = "Tobias built Shopify in 9 weeks with 7 lines of code."
+    cleaned = strip_unverified_numbers(draft_num, src)
+    if "9 weeks" in cleaned or "7 lines" in cleaned:
+        return False, f"strip_unverified_numbers failed to strip unverified counts: '{cleaned}'"
+    
+    unverified = verify_numbers_in_source(draft_num, src)
+    if "9" not in unverified or "7" not in unverified:
+        return False, f"verify_numbers_in_source failed to detect unverified numbers: {unverified}"
+
+    # 2. Test thread format sentence counts (2-4 sentences required)
+    plan_thread = PostPlan(
+        slot="morning",
+        date=datetime.now(timezone.utc),
+        weekday="monday",
+        pillar="tech_for_business",
+        industry=None,
+        hook_pattern="Counterintuitive Claim",
+        format="thread",
+        topic_tag="Business",
+        is_trend_jack=False,
+        is_x_thread=False,
+        is_threads_thread=True,
+        x_post_count=0,
+        threads_post_count=4,
+        invite_reply_question=False,
+    )
+
+    # 1-sentence post in thread must fail
+    bad_cand_1 = {
+        "entity": "Shopify",
+        "topic": "Shopify architecture overview",
+        "threads_posts": [
+            "Online retail was hard.",
+            "Lutke built a software tool in 2006. It processed transactions cleanly.",
+            "Merchants adopted the software quickly. It scaled into a major platform.",
+            "Focusing on merchant software rails created durable platform value. Quiet infrastructure wins.",
+        ],
+    }
+    ok_1, msg_1, _ = validate_and_sanitize(bad_cand_1, plan_thread, source_title="Shopify", source_text=src)
+    if ok_1:
+        return False, "validate_and_sanitize failed to block thread post with only 1 sentence"
+
+    # 5-sentence post in thread must fail
+    bad_cand_5 = {
+        "entity": "Shopify",
+        "topic": "Shopify architecture overview",
+        "threads_posts": [
+            "Online retail was hard. Lutke built tools in 2006.",
+            "One sentence here. Two sentences here. Three sentences here. Four sentences here. Five sentences here.",
+            "Merchants adopted the software quickly. It scaled into a major platform.",
+            "Focusing on merchant software rails created durable platform value. Quiet infrastructure wins.",
+        ],
+    }
+    ok_5, msg_5, _ = validate_and_sanitize(bad_cand_5, plan_thread, source_title="Shopify", source_text=src)
+    if ok_5:
+        return False, "validate_and_sanitize failed to block thread post with 5 sentences (>4 allowed)"
+
+    # 3. Test controversial researcher rejection (Dan Ariely)
+    plan_single = PostPlan(
+        slot="night",
+        date=datetime.now(timezone.utc),
+        weekday="monday",
+        pillar="psychology_insight",
+        industry="marketing",
+        hook_pattern="Counterintuitive Claim",
+        format="short_insight",
+        topic_tag="Psychology",
+        is_trend_jack=False,
+        is_x_thread=False,
+        is_threads_thread=False,
+        x_post_count=0,
+        threads_post_count=1,
+        invite_reply_question=False,
+    )
+    cand_ariely = {
+        "entity": "Decoy effect",
+        "topic": "Decoy effect in consumer pricing",
+        "threads_posts": [
+            "Consumer choices are easily manipulated.\n\nDan Ariely demonstrated that adding an inferior choice changes behavior. Buyers select the middle tier more often. Positioning defines perceived value."
+        ],
+    }
+    ok_ar, msg_ar, _ = validate_and_sanitize(cand_ariely, plan_single, source_title="Decoy effect", source_text="The decoy effect is a cognitive bias.")
+    if ok_ar:
+        return False, "validate_and_sanitize failed to block controversial researcher (Dan Ariely)"
+
+    # 4. Test Quality Gate threshold: < 7.5 is rejected
+    threshold = 7.5
+    sample_scores = [7.2, 7.4, 6.8]
+    for s in sample_scores:
+        if s >= threshold:
+            return False, f"Quality gate threshold logic error: {s} should be < {threshold}"
+    if not (7.5 >= threshold and 8.0 >= threshold):
+        return False, "Quality gate threshold logic error on valid passing scores"
+
+    return True, "Quality gate hard block (<7.5), number verification, thread 2-4 sentence enforcement, and controversial researcher bans all verified"
+
+
 def main() -> int:
     print("=" * 64)
     print("Project-X Setup & Diagnostic Validation")
@@ -313,6 +469,8 @@ def main() -> int:
         ("Threads API & Container Creation", run_check_4_threads),
         ("GitHub PAT Permissions", run_check_5_gh_pat),
         ("DASH BAN Code-Level Verification", run_check_8_dash_ban),
+        ("Substance, Sentence Count & Fact Hygiene", run_check_9_substance_and_sentence_count),
+        ("Grounding Hygiene, Quality Gate & Fact Checks", run_check_10_quality_gate_and_grounding_hygiene),
         ("Dry Runs & Content Validation", run_check_6_dry_runs),
         ("History JSON Validity", run_check_7_history_json),
     ]

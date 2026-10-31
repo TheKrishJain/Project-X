@@ -49,6 +49,7 @@ HISTORY_FILE = DATA_DIR / "history.json"
 def record_history(
     plan_data: dict[str, Any],
     topic: str,
+    entity: str,
     hook_pattern: str,
     format_type: str,
     topic_tag: str,
@@ -81,10 +82,11 @@ def record_history(
         "weekday": plan_data.get("weekday"),
         "pillar": plan_data.get("pillar"),
         "industry": plan_data.get("industry"),
+        "entity": entity,
         "topic": topic,
         "hook_pattern": hook_pattern,
         "format": format_type,
-        "topic_tag": topic_tag,
+        "topic_tag": topic_tag.lstrip("#"),
         "is_trend_jack": is_trend_jack,
         "critique_score": critique_score,
         "critique_reason": critique_reason,
@@ -227,11 +229,13 @@ def main() -> int:
     print(f"Self-Improving Auto-Poster [{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}]")
     print(f"  Slot:           {args.slot.upper()}")
     print(f"  Pillar:         {content.pillar}")
+    print(f"  Entity:         {content.entity}")
     print(f"  Hook Pattern:   {content.hook_pattern}")
     print(f"  Format:         {content.format}")
-    print(f"  Topic Tag:      #{content.topic_tag}")
+    print(f"  Topic Tag:      {content.topic_tag.lstrip('#')}")
     print(f"  Trend-Jack:     {content.is_trend_jack}")
     print(f"  Quality Score:  {content.critique_score}/10")
+    print(f"  Runtime:        {content.runtime_seconds}s")
     print(f"  Threads Posts:  {len(content.threads_posts)} item(s)")
     print(f"  X Enabled:      {enable_x}")
     print(f"  Dry run mode:   {is_dry_run}")
@@ -242,7 +246,12 @@ def main() -> int:
     if content.critique_details:
         print(f"  Criteria Breakdown: {content.critique_details}")
 
-    print(f"\n--- Threads Posts ({len(content.threads_posts)} item(s) | Topic Tag: #{content.topic_tag}) ---")
+    if content.grounding_sources:
+        print(f"\n[Grounding Sources ({len(content.grounding_sources)})]:")
+        for s in content.grounding_sources:
+            print(f"  - Title: '{s['title']}' | PubDate: {s.get('date')} | URL: {s.get('url')}")
+
+    print(f"\n--- Threads Posts ({len(content.threads_posts)} item(s) | Topic Tag: {content.topic_tag.lstrip('#')}) ---")
     for idx, post in enumerate(content.threads_posts, start=1):
         print(f"  [{idx}/{len(content.threads_posts)}] ({len(post)}/480 chars):\n    {post.replace(chr(10), chr(10) + '    ')}")
 
@@ -255,13 +264,14 @@ def main() -> int:
     threads_success = False
     threads_ids: list[str] = []
 
+    clean_topic_tag = content.topic_tag.lstrip("#")
     print("\n" + "-" * 40)
-    print(f"[Threads Dispatch] Posting {len(content.threads_posts)} item(s) (tag: #{content.topic_tag})...")
+    print(f"[Threads Dispatch] Posting {len(content.threads_posts)} item(s) (tag: {clean_topic_tag})...")
     try:
         threads_ids = post_to_threads(
             posts=content.threads_posts,
             dry_run=is_dry_run,
-            topic_tag=content.topic_tag,
+            topic_tag=clean_topic_tag,
         )
         threads_success = True
         print(f"[Threads Dispatch] Succeeded! Post IDs: {threads_ids}")
@@ -303,9 +313,10 @@ def main() -> int:
     record_history(
         plan_data=plan_dict,
         topic=content.topic,
+        entity=content.entity,
         hook_pattern=content.hook_pattern,
         format_type=content.format,
-        topic_tag=content.topic_tag,
+        topic_tag=clean_topic_tag,
         is_trend_jack=content.is_trend_jack,
         x_posts=content.x_posts if enable_x else [],
         threads_posts=content.threads_posts,
