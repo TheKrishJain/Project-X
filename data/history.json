@@ -642,5 +642,155 @@
       "mock_th_1793473154_2",
       "mock_th_1793473154_3"
     ]
+  },
+  {
+    "timestamp": "2026-10-31T19:16:09.687716+00:00",
+    "slot": "morning",
+    "date": "2026-10-31T19:16:09.686715+00:00",
+    "weekday": "saturday",
+    "pillar": "ai_hack",
+    "industry": null,
+    "entity": "OpenAI",
+    "topic": "Structured outputs to guarantee JSON schema compliance",
+    "hook_pattern": "Nobody Talks About...",
+    "format": "thread",
+    "topic_tag": "AI",
+    "is_trend_jack": false,
+    "critique_score": 8.5,
+    "critique_reason": "Concrete technical hack from official docs, strict: true setting, production engineering insight.",
+    "is_x_thread": false,
+    "is_threads_thread": true,
+    "x_posts": [],
+    "threads_posts": [
+      "Guaranteeing JSON response schemas eliminates API runtime crashes.",
+      "Structured Outputs is a feature that ensures the model will always generate responses that adhere to your supplied JSON Schema. By setting strict: true within the response_format parameter, the model is constrained at the token sampling level using context-free grammars, guaranteeing 100% adherence to your defined schema without runtime parsing errors.",
+      "Hard token-level constraints eliminate Pydantic retry loops in production pipelines. Never trust probabilistic completions when the engine can enforce deterministic grammars."
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "mock_th_1793474169_1",
+      "mock_th_1793474169_2",
+      "mock_th_1793474169_3"
+    ]
+  },
+  {
+    "timestamp": "2026-10-31T19:16:58.439453+00:00",
+    "slot": "morning",
+    "date": "2026-10-31T19:16:58.437493+00:00",
+    "weekday": "saturday",
+    "pillar": "ai_hack",
+    "industry": null,
+    "entity": "Cursor",
+    "topic": "Project rules files to eliminate LLM code hallucination",
+    "hook_pattern": "Short Story Opener",
+    "format": "thread",
+    "topic_tag": "AI",
+    "is_trend_jack": false,
+    "critique_score": 8.2,
+    "critique_reason": "Actionable developer trick from official docs, concrete files (.cursorrules), sharp operational advice.",
+    "is_x_thread": false,
+    "is_threads_thread": true,
+    "x_posts": [],
+    "threads_posts": [
+      "Stop retyping architectural constraints into every AI prompt.",
+      "You can add project-specific rules in a.cursorrules file or in the.cursor/rules directory. Cursor automatically includes these custom instructions in model context for chat and cmd-K edits, matching your codebase conventions and libraries.",
+      "Setting up negative constraints once in your repository stops models from hallucinating deprecated methods across long sessions. Upfront guardrails protect working code from context decay."
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "mock_th_1793474218_1",
+      "mock_th_1793474218_2",
+      "mock_th_1793474218_3"
+    ]
+  },
+  {
+    "timestamp": "2026-10-31T19:17:14.142442+00:00",
+    "slot": "night",
+    "date": "2026-10-31T19:17:14.141479+00:00",
+    "weekday": "saturday",
+    "pillar": "motivation",
+    "industry": null,
+    "entity": "Timeboxing",
+    "topic": "Fixed time constraints to defeat Parkinson's law",
+    "hook_pattern": "Most People Think X. Actually Y.",
+    "format": "thread",
+    "topic_tag": "Productivity",
+    "is_trend_jack": false,
+    "critique_score": 8.0,
+    "critique_reason": "Punchy under-12-word opening hook, verified timeboxing definition, crisp founder advice.",
+    "is_x_thread": false,
+    "is_threads_thread": true,
+    "x_posts": [],
+    "threads_posts": [
+      "Open schedules invite work to expand until deadlines approach.",
+      "Timeboxing allocates a fixed, maximum unit of time to an activity in advance. In project management, teams use this method to prevent work from expanding to fill available time by stopping work when the window expires.",
+      "Artificial constraints kill perfectionism and force operators to ship the essential core. Tight boundaries generate far more momentum than open-ended calendars."
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "mock_th_1793474234_1",
+      "mock_th_1793474234_2",
+      "mock_th_1793474234_3"
+    ]
+  },
+  {
+    "timestamp": "2026-10-31T19:20:34.701282+00:00",
+    "slot": "morning",
+    "date": "2026-10-31T19:20:34.699279+00:00",
+    "weekday": "saturday",
+    "pillar": "ai_hack",
+    "industry": null,
+    "entity": "Cursor",
+    "topic": "Project rules files to eliminate LLM code hallucination",
+    "hook_pattern": "Specific Number / Result",
+    "format": "thread",
+    "topic_tag": "AI",
+    "is_trend_jack": false,
+    "critique_score": 8.2,
+    "critique_reason": "Actionable developer trick from official docs, concrete files (.cursorrules), sharp operational advice.",
+    "is_x_thread": false,
+    "is_threads_thread": true,
+    "x_posts": [],
+    "threads_posts": [
+      "Stop retyping architectural constraints into every AI prompt.",
+      "You can add project-specific rules in a.cursorrules file or in the.cursor/rules directory. Cursor automatically includes these custom instructions in model context for chat and cmd-K edits, matching your codebase conventions and libraries.",
+      "Setting up negative constraints once in your repository stops models from hallucinating deprecated methods across long sessions. Upfront guardrails protect working code from context decay."
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "mock_th_1793474434_1",
+      "mock_th_1793474434_2",
+      "mock_th_1793474434_3"
+    ]
+  },
+  {
+    "timestamp": "2026-10-31T19:20:47.168823+00:00",
+    "slot": "night",
+    "date": "2026-10-31T19:20:47.168823+00:00",
+    "weekday": "saturday",
+    "pillar": "motivation",
+    "industry": null,
+    "entity": "Timeboxing",
+    "topic": "Fixed time constraints to defeat Parkinson's law",
+    "hook_pattern": "Quiet Pattern",
+    "format": "thread",
+    "topic_tag": "Productivity",
+    "is_trend_jack": false,
+    "critique_score": 8.0,
+    "critique_reason": "Punchy under-12-word opening hook, verified timeboxing definition, crisp founder advice.",
+    "is_x_thread": false,
+    "is_threads_thread": true,
+    "x_posts": [],
+    "threads_posts": [
+      "Open schedules invite work to expand until deadlines approach.",
+      "Timeboxing allocates a fixed, maximum unit of time to an activity in advance. In project management, teams use this method to prevent work from expanding to fill available time by stopping work when the window expires.",
+      "Artificial constraints kill perfectionism and force operators to ship the essential core. Tight boundaries generate far more momentum than open-ended calendars."
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "mock_th_1793474447_1",
+      "mock_th_1793474447_2",
+      "mock_th_1793474447_3"
+    ]
   }
 ]

@@ -454,7 +454,64 @@ def run_check_10_quality_gate_and_grounding_hygiene() -> tuple[bool, str]:
     if not (7.5 >= threshold and 8.0 >= threshold):
         return False, "Quality gate threshold logic error on valid passing scores"
 
-    return True, "Quality gate hard block (<7.5), number verification, thread 2-4 sentence enforcement, and controversial researcher bans all verified"
+    # 5. Test spelled-out numbers, ordinals, and years detection
+    src_num_test = "The company released its product in 1989 and gained four million users."
+    draft_bad_num = "In 2003, they became the first startup to reach fifteen million users."
+    unv = verify_numbers_in_source(draft_bad_num, src_num_test)
+    if not any(x in unv for x in ["2003", "fifteen", "first"]):
+        return False, f"verify_numbers_in_source failed to detect unverified spelled-out/ordinal/year: {unv}"
+
+    # 6. Test exact evidence quote substring and char offset verification
+    from src.sanitize import verify_evidence_table
+    src_ev = "Shopify Inc. was founded in 2006 by Tobias Lutke in Ottawa, Ontario."
+    ev_table = [
+        {"claim": "Shopify was founded in 2006.", "evidence": "founded in 2006 by Tobias Lutke"},
+        {"claim": "They raised 50 billion dollars.", "evidence": "50 billion dollars raised"},
+        {"claim": "Distribution beats code.", "evidence": "Editorial takeaway"},
+    ]
+    verified_ev = verify_evidence_table(ev_table, src_ev)
+    if verified_ev[0]["offset"] < 0 or not verified_ev[0]["verified"]:
+        return False, "verify_evidence_table failed on exact quote match"
+    if verified_ev[1]["verified"]:
+        return False, "verify_evidence_table failed to reject fabricated quote"
+    if verified_ev[2]["offset"] != -1 or not verified_ev[2]["verified"]:
+        return False, "verify_evidence_table failed to handle editorial takeaway"
+
+    # 7. Test that scores vary across drafts (fails if 6 drafts all get the same score)
+    from src.generate import _fallback_sample
+    test_pillars = [
+        "tech_for_business",
+        "marketing_case_study",
+        "business_strategy",
+        "ai_hack",
+        "psychology_insight",
+        "motivation",
+    ]
+    scores_across_pillars = []
+    for pil in test_pillars:
+        p = PostPlan(
+            slot="morning",
+            date=datetime.now(timezone.utc),
+            weekday="monday",
+            pillar=pil,
+            industry=None,
+            hook_pattern="Counterintuitive Claim",
+            format="short_insight",
+            topic_tag="Business",
+            is_trend_jack=False,
+            is_x_thread=False,
+            is_threads_thread=False,
+            x_post_count=0,
+            threads_post_count=1,
+            invite_reply_question=False,
+        )
+        sample = _fallback_sample(p)
+        scores_across_pillars.append(sample.critique_score)
+
+    if len(set(scores_across_pillars)) <= 1:
+        return False, f"Critic failure: all 6 sample drafts scored identical value {scores_across_pillars[0]}"
+
+    return True, f"Quality gate, exact quote offsets, spelled-out/year checks, and score variation ({scores_across_pillars}) all verified"
 
 
 def main() -> int:
