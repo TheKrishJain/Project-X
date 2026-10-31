@@ -1,11 +1,11 @@
-name: Auto-Post Scheduled Content
+name: Auto-Poster
 
 on:
   schedule:
-    # Morning slot: 03:30 UTC = 09:00 AM IST
-    - cron: '30 3 * * *'
-    # Night slot: 15:30 UTC = 09:00 PM IST
-    - cron: '30 15 * * *'
+    # Morning slot: 03:45 UTC = ~09:15 AM IST
+    - cron: '45 3 * * *'
+    # Night slot: 15:15 UTC = ~08:45 PM IST
+    - cron: '15 15 * * *'
   workflow_dispatch:
     inputs:
       slot:
@@ -17,21 +17,20 @@ on:
           - morning
           - night
       dry_run:
-        description: 'Simulate without posting (Dry Run)'
+        description: 'Simulate without publishing (Dry Run)'
         required: true
         default: false
         type: boolean
-      day_override:
-        description: 'Override weekday (e.g. thursday, tuesday)'
-        required: false
-        default: ''
-        type: string
+
+concurrency:
+  group: poster
+  cancel-in-progress: false
 
 permissions:
   contents: write
 
 jobs:
-  auto_post:
+  post:
     runs-on: ubuntu-latest
 
     steps:
@@ -51,7 +50,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Execute Auto-Poster
+      - name: Resolve Slot and Execute Auto-Poster
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash' }}
@@ -62,39 +61,45 @@ jobs:
           X_MONTHLY_CAP: ${{ vars.X_MONTHLY_CAP || '85' }}
           THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
           THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
-          FORCE_DAY: ${{ github.event.inputs.day_override || '' }}
         run: |
-          # Determine slot based on trigger or manual input
+          # 1. Determine slot based on trigger
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            SLOT_ARG="--slot ${{ github.event.inputs.slot }}"
+            SLOT="${{ github.event.inputs.slot }}"
             if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
-              DRY_RUN_ARG="--dry-run"
+              DRY_RUN_FLAG="--dry-run"
             else
-              DRY_RUN_ARG=""
+              DRY_RUN_FLAG=""
             fi
+          elif [ "${{ github.event.schedule }}" = "45 3 * * *" ]; then
+            SLOT="morning"
+            DRY_RUN_FLAG=""
+          elif [ "${{ github.event.schedule }}" = "15 15 * * *" ]; then
+            SLOT="night"
+            DRY_RUN_FLAG=""
           else
-            # Cron trigger: check current UTC hour
+            # Fallback based on current UTC hour
             HOUR=$(date -u +%H)
             if [ "$HOUR" -ge 12 ]; then
-              SLOT_ARG="--slot night"
+              SLOT="night"
             else
-              SLOT_ARG="--slot morning"
+              SLOT="morning"
             fi
-            DRY_RUN_ARG=""
+            DRY_RUN_FLAG=""
           fi
 
-          python -m src.main $SLOT_ARG $DRY_RUN_ARG
+          echo "Executing auto-poster for slot: $SLOT with flags: $DRY_RUN_FLAG"
+          python -m src.main --slot "$SLOT" $DRY_RUN_FLAG
 
-      - name: Commit and push updated history & usage
+      - name: Commit data/history.json and data/x_usage.json
         if: always()
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add data/history.json data/x_usage.json
           if git diff --staged --quiet; then
-            echo "No changes in data files to commit."
+            echo "No changes in data/history.json or data/x_usage.json to commit."
           else
-            git commit -m "chore: auto-update post history and X usage [skip ci]"
+            git commit -m "chore: auto-update post history and x usage [skip ci]"
             git pull --rebase origin main || true
             git push origin HEAD:${{ github.ref_name }}
           fi
