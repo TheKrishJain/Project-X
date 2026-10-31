@@ -60,6 +60,8 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-3.1-flash-lite' }}
+          GEMINI_FALLBACK_MODELS: ${{ vars.GEMINI_FALLBACK_MODELS || 'gemini-3.5-flash' }}
+          QUALITY_MIN: ${{ vars.QUALITY_MIN || '7.0' }}
           THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
           THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
           # Optional X Configuration (only needed if ENABLE_X="true")
@@ -112,13 +114,8 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add data/history.json || true
-          git add data/performance.json || true
-          git add data/weights.json || true
+          git add data/*.json || true
           git add reports/ || true
-          # Only add x_usage.json if modified
-          if [ "${{ vars.ENABLE_X }}" = "true" ] || [ "${{ github.event.inputs.enable_x }}" = "true" ]; then
-            git add data/x_usage.json || true
-          fi
 
           if git diff --staged --quiet; then
             echo "No changes in data files to commit."

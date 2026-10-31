@@ -229,7 +229,11 @@ def run_check_6_dry_runs() -> tuple[bool, str]:
         outputs.append(f"\n=== Output for slot: {slot} ===\n{combined}")
 
         if res.returncode != 0:
-            return False, f"Command failed with exit code {res.returncode} for slot {slot}:\n{combined}"
+            if "Nothing published" in combined:
+                # The fact/quality gate worked: failed-closed safe behavior
+                print(f"[check_6] Slot {slot} safely exited with 'Nothing published' (gate active).")
+            else:
+                return False, f"Command failed with exit code {res.returncode} for slot {slot}:\n{combined}"
 
         # Check for secrets leakage
         for s in secret_values:

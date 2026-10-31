@@ -32,6 +32,7 @@ from src.analytics import (
     update_dynamic_weights,
 )
 from src.generate import (
+    GenerationFailed,
     generate_content,
     load_schedule,
     resolve_plan,
@@ -189,6 +190,7 @@ def main() -> int:
             d_data = json.load(f)
         from src.generate import GeneratedContent
         content = GeneratedContent(
+            entity=d_data.get("entity", ""),
             pillar=d_data.get("pillar", "psychology_insight"),
             topic=d_data.get("topic", "The IKEA Effect in operations"),
             hook_pattern=d_data.get("hook_pattern", "most_people_think"),
@@ -203,12 +205,16 @@ def main() -> int:
             attempts=1,
         )
     else:
-        content = generate_content(
-            slot=args.slot,
-            date=date_val,
-            dry_run=is_dry_run,
-            enable_x=enable_x,
-        )
+        try:
+            content = generate_content(
+                slot=args.slot,
+                date=date_val,
+                dry_run=is_dry_run,
+                enable_x=enable_x,
+            )
+        except GenerationFailed as e:
+            print(f"[main] {e}", file=sys.stderr)
+            return 1
 
     # 3. Code-level DASH BAN Verification
     sanitized_th: list[str] = []
@@ -310,22 +316,25 @@ def main() -> int:
         "is_x_thread": False,
         "is_threads_thread": (len(content.threads_posts) > 1),
     }
-    record_history(
-        plan_data=plan_dict,
-        topic=content.topic,
-        entity=content.entity,
-        hook_pattern=content.hook_pattern,
-        format_type=content.format,
-        topic_tag=clean_topic_tag,
-        is_trend_jack=content.is_trend_jack,
-        x_posts=content.x_posts if enable_x else [],
-        threads_posts=content.threads_posts,
-        x_ids=x_ids if enable_x else [],
-        threads_ids=threads_ids,
-        critique_score=content.critique_score,
-        critique_reason=content.critique_reason,
-    )
-    print(f"[main] Recorded execution to {HISTORY_FILE.relative_to(HISTORY_FILE.parent.parent)}")
+    if threads_success and not is_dry_run:
+        record_history(
+            plan_data=plan_dict,
+            topic=content.topic,
+            entity=content.entity,
+            hook_pattern=content.hook_pattern,
+            format_type=content.format,
+            topic_tag=clean_topic_tag,
+            is_trend_jack=content.is_trend_jack,
+            x_posts=content.x_posts if enable_x else [],
+            threads_posts=content.threads_posts,
+            x_ids=x_ids if enable_x else [],
+            threads_ids=threads_ids,
+            critique_score=content.critique_score,
+            critique_reason=content.critique_reason,
+        )
+        print(f"[main] Recorded execution to {HISTORY_FILE.relative_to(HISTORY_FILE.parent.parent)}")
+    else:
+        print("[main] Dry run or failed post: history.json not updated.")
 
     # 6. Analytics Sync & Weekly Optimization Loop
     try:

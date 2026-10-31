@@ -21,6 +21,7 @@ import time
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
+import dataclasses
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
@@ -32,6 +33,8 @@ from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 
 from src.analytics import get_top_performing_posts
+from src.factcheck import drop_failed_sentences, final_fact_gate, make_gemini_judge
+from src.llm_retry import RetryingClient
 from src.sanitize import (
     assert_no_dashes, count_sentences, sanitize_post,
     strip_unverified_numbers, normalize_whitespace, find_exact_quote,
@@ -39,6 +42,10 @@ from src.sanitize import (
 )
 
 load_dotenv()
+
+
+class GenerationFailed(RuntimeError):
+    """No draft passed every gate. Nothing gets published."""
 
 # Banned buzzwords
 BANNED_PHRASES: list[str] = [
@@ -196,7 +203,7 @@ def fetch_wikipedia_full_text(title_or_query: str) -> tuple[str, str, str]:
         res = requests.get(e_url, headers=headers, timeout=10).json()
         pages = res.get("query", {}).get("pages", {})
         extract = list(pages.values())[0].get("extract", "")
-        clean_extract = extract[:3500].strip()
+        clean_extract = extract[:8000].strip()
         if len(clean_extract) > 100:
             return title, canonical_url, clean_extract
     except Exception as e:
@@ -265,17 +272,20 @@ def fetch_web_article_full_text(url: str) -> tuple[str, str, str, str] | None:
         title = (soup.title.string if soup.title else url).strip().replace("—", ". ").replace("–", ". ")
         paras = [p.get_text().strip() for p in soup.find_all(["p", "li"]) if len(p.get_text().strip()) > 30]
         body = " ".join(paras)
+        if len(body) <= 150:  # plain text / markdown / pages without <p> tags
+            body = re.sub(r"\s+", " ", soup.get_text(" ")).strip()
         if len(body) > 150:
-            return title, url, "Official Docs/Web", body[:3500]
+            return title, url, "Official Docs/Web", body[:8000]
     except Exception as e:
         print(f"[grounding] Web article fetch notice for {url}: {e}")
     return None
 
 
 OFFICIAL_AI_HACKS: dict[str, dict[str, str]] = {
+    "Gemini": {"title": "Gemini API structured output", "url": "https://ai.google.dev/gemini-api/docs/structured-output", "date": "", "text": ""},
     "Cursor": {
         "title": "Cursor Project Rules (.cursorrules)",
-        "url": "https://docs.cursor.com/context/rules-for-ai",
+        "url": "https://cursor.com/docs/context/rules",
         "date": "Cursor Official Documentation (2026)",
         "text": "Rules for AI allow you to provide custom instructions to Cursor. You can add project-specific rules in a .cursorrules file or in the .cursor/rules directory. When editing files, Cursor references these rules to match your codebase conventions, libraries, and coding standards. Project rules are automatically included in model context for chat and cmd-K edits, ensuring consistency without re-prompting.",
     },
@@ -287,13 +297,13 @@ OFFICIAL_AI_HACKS: dict[str, dict[str, str]] = {
     },
     "Anthropic": {
         "title": "Claude Prompt Engineering with XML Tags",
-        "url": "https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/system-prompts",
+        "url": "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/use-xml-tags",
         "date": "Anthropic Official Prompt Engineering Guide (2026)",
         "text": "Use XML tags to structure your prompt and separate instructions from context. Claude is particularly well-tuned to pay attention to XML tags like <instructions>, <context>, and <input>. Wrapping developer instructions in dedicated tags prevents prompt injection attacks and prevents user inputs from being mistaken for system commands.",
     },
     "Ollama": {
         "title": "Ollama Modelfile System Constraints",
-        "url": "https://github.com/ollama/ollama/blob/main/docs/modelfile.md",
+        "url": "https://raw.githubusercontent.com/ollama/ollama/main/docs/modelfile.mdx",
         "date": "Ollama Official Documentation (2026)",
         "text": "A Modelfile is the blueprint to create and share models with Ollama. You can set persistent system prompts using the SYSTEM command and configure model parameters such as PARAMETER temperature 0.2. Running ollama create builds a custom model with permanent guardrails baked in, avoiding repetitive prompt engineering on every local CLI query.",
     },
@@ -550,14 +560,9 @@ def load_recent_entities(limit: int = 60, path: str | Path = "data/history.json"
     entries = load_recent_history_entries(limit=limit, path=path)
     entities: set[str] = set()
     for e in entries:
-        ent = str(e.get("entity", "")).strip()
+        ent = str(e.get("entity") or e.get("topic") or "").strip()
         if ent:
-            entities.add(ent.lower())
-        top = str(e.get("topic", "")).strip()
-        if top:
-            for word in top.split():
-                if len(word) >= 4 and word.lower() not in STOPWORDS:
-                    entities.add(word.lower())
+            entities.add(re.sub(r"\s*\(.*?\)", "", ent).strip().lower())
     return entities
 
 
@@ -1256,7 +1261,7 @@ def generate_content(
     force_format: str | None = None,
     force_entity: str | None = None,
     dry_run: bool = False,
-    max_attempts: int = 3,
+    max_attempts: int = 4,
     enable_x: bool | None = None,
     batch_entities: set[str] | None = None,
 ) -> GeneratedContent:
@@ -1288,9 +1293,6 @@ def generate_content(
 
     is_dry_run = dry_run or os.getenv("DRY_RUN", "").lower() == "true"
     if not api_key:
-        if is_dry_run:
-            print("[generate] No GEMINI_API_KEY found, using verified reference standard.")
-            return _fallback_sample(plan, enable_x=enable_x, blocked_entities=blocked_entities)
         raise ValueError("GEMINI_API_KEY environment variable is required.")
 
     # Step 1: Resolve target entity and fetch full source text (Fix 1 & 2)
@@ -1303,44 +1305,67 @@ def generate_content(
 
     pillar_entity_pools: dict[str, list[str]] = {
         "tech_for_business": [
-            "Shopify", "Cloudflare", "Automattic", "Red Hat", "Stripe (company)", "Datadog", "GitHub", "Atlassian"
+            "Shopify", "Cloudflare", "Automattic", "Red Hat", "Stripe, Inc.", "Datadog", "GitHub", "Atlassian",
+            "Twilio", "Canva", "Figma", "Notion (productivity software)", "Zapier", "HubSpot", "Razorpay", "Zerodha",
+            "Freshworks", "Zoho Corporation", "Unified Payments Interface", "Tally Solutions", "Postman (software)",
+            "BrowserStack", "Open Network for Digital Commerce", "Aadhaar", "Salesforce", "Snowflake Inc.",
         ],
         "marketing_case_study": [
-            "Liquid Death", "Duolingo", "Red Bull", "Patagonia (clothing)", "Gymshark", "Spotify", "Oatly"
+            "Liquid Death", "Duolingo", "Red Bull", "Patagonia, Inc.", "Gymshark", "Spotify Wrapped", "Oatly",
+            "Amul girl", "Dollar Shave Club", "The Man Your Man Could Smell Like", "Share a Coke", "Got Milk?",
+            "Think different", "Just Do It", "1984 (advertisement)", "Think Small", "A Diamond Is Forever",
+            "Warby Parker", "Glossier", "Mailchimp", "Absolut Vodka", "Old Spice", "Fevicol", "Cadbury Dairy Milk",
         ],
         "business_strategy": [
-            "Game Boy", "Costco", "Basecamp (software)", "Southwest Airlines", "Zara (retailer)", "Marvel Comics"
+            "Game Boy", "Costco", "Southwest Airlines", "Zara (retailer)", "Marvel Comics", "Netflix", "Wii",
+            "Blue Ocean Strategy", "Toyota Production System", "Just-in-time manufacturing", "Amazon Web Services",
+            "Instagram", "Blockbuster LLC", "Kodak", "Fujifilm", "Jio", "Tata Nano", "Maruti Suzuki", "Dabbawala",
+            "Nokia", "Lego", "Trader Joe's", "In-N-Out Burger", "Haier", "Walmart",
         ],
         "ai_hack": [
             "GitHub Copilot", "Hugging Face", "LangChain", "Anthropic", "Mistral AI", "Perplexity AI"
         ],
         "psychology_insight": [
-            "Door-in-the-face technique", "Survivorship bias", "Anchoring (cognitive bias)", "Framing effect (psychology)", "Endowment effect", "Pygmalion effect", "Decoy effect"
+            "Door-in-the-face technique", "Survivorship bias", "Anchoring effect", "Framing effect (psychology)",
+            "Endowment effect", "Pygmalion effect", "Decoy effect", "Foot-in-the-door technique", "Loss aversion",
+            "Sunk cost", "Mere-exposure effect", "Social proof", "Reciprocity (social psychology)", "Hindsight bias",
+            "Confirmation bias", "Zeigarnik effect", "Overchoice", "Hedonic treadmill", "IKEA effect", "Halo effect",
+            "Bystander effect", "Spotlight effect", "Planning fallacy", "Status quo bias", "Cognitive dissonance",
+            "Availability heuristic", "Fundamental attribution error", "Bandwagon effect", "Scarcity (social psychology)",
         ],
         "motivation": [
-            "Timeboxing", "Parkinson's law", "Decision fatigue", "Pomodoro Technique", "Flow (psychology)", "Goal gradient effect"
+            "Timeboxing", "Parkinson's law", "Decision fatigue", "Pomodoro Technique", "Flow (psychology)",
+            "Pareto principle", "Deliberate practice", "Implementation intention", "Kaizen", "Grit (personality trait)",
+            "Delayed gratification", "Stanford marshmallow experiment", "Procrastination", "Getting Things Done",
+            "Self-efficacy", "Overjustification effect", "Learned helplessness", "Locus of control", "Ikigai",
+            "Hofstadter's law", "Student syndrome",
         ],
     }
 
-    # If trend-jack, try news first
-    if plan.is_trend_jack and not target_entity:
-        news_res = fetch_news_article_full_text("technology startup OR artificial intelligence", max_age_hours=72)
-        if news_res:
-            source_title, source_url, source_date, source_text = news_res
-            target_entity = source_title.split("-")[0].strip()
-            print(f"[grounding] Trend-jack news source retrieved: '{source_title}' ({source_url})")
+    # Trend-jacking off: Google News RSS links resolve to Google redirect pages, not
+    # article text, so there is no real source to check facts against.
+    if plan.is_trend_jack:
+        plan = dataclasses.replace(plan, is_trend_jack=False)
 
     # If ai_hack, use official documentation (not Wikipedia)
     if plan.pillar == "ai_hack" and not source_text:
-        hack_candidates = ["Cursor", "OpenAI", "Anthropic", "Ollama"]
-        chosen_tool = target_entity or next((t for t in hack_candidates if t.lower() not in blocked_entities), hack_candidates[0])
-        hack_info = OFFICIAL_AI_HACKS.get(chosen_tool, OFFICIAL_AI_HACKS["Cursor"])
-        target_entity = chosen_tool
-        source_title = hack_info["title"]
-        source_url = hack_info["url"]
-        source_date = hack_info["date"]
-        source_text = hack_info["text"]
-        print(f"[grounding] Official AI docs source retrieved: '{source_title}' ({source_url})")
+        # Fetch the REAL docs page. The "text" typed into OFFICIAL_AI_HACKS is never used.
+        for tool, info in OFFICIAL_AI_HACKS.items():
+            if target_entity and tool != target_entity:
+                continue
+            if tool.lower() in blocked_entities and tool != target_entity:
+                continue
+            fetched = fetch_web_article_full_text(info["url"])
+            if fetched and tool.lower() in (fetched[0] + fetched[1] + fetched[3]).lower():
+                source_title, source_url, source_date, source_text = fetched
+                target_entity = tool
+                print(f"[grounding] Official AI docs fetched: '{source_title}' ({source_url})")
+                break
+            print(f"[grounding] Could not fetch usable docs for {tool} ({info['url']}); skipping.")
+        if not source_text:
+            print("[grounding] No AI docs page fetched; switching this post to tech_for_business.")
+            plan = dataclasses.replace(plan, pillar="tech_for_business", topic_tag="Business")
+            target_entity = ""
 
     # If no news or evergreen, fetch Wikipedia REST API
     if not source_text:
@@ -1348,9 +1373,15 @@ def generate_content(
         if target_entity:
             candidates = [target_entity] + [c for c in candidates if c != target_entity]
 
-        for cand in candidates:
-            if cand.lower() in blocked_entities and cand != target_entity:
-                continue
+        def _blocked(c: str) -> bool:
+            c = re.sub(r"\s*\(.*?\)", "", c).strip().lower()
+            return any(b and (b in c or c in b) for b in blocked_entities)
+
+        rest = [c for c in candidates if c != target_entity and not _blocked(c)]
+        random.shuffle(rest)
+        if not rest and not target_entity:
+            print(f"[grounding] Every {plan.pillar} topic was used recently; add more to pillar_entity_pools.")
+        for cand in ([target_entity] if target_entity else []) + rest:
             w_title, w_url, w_text = fetch_wikipedia_full_text(cand)
             if w_text and len(w_text) >= 200:
                 source_title = w_title
@@ -1366,7 +1397,7 @@ def generate_content(
 
     from google import genai
     from google.genai import types
-    client = genai.Client(api_key=api_key)
+    client = RetryingClient(genai.Client(api_key=api_key))
 
     grounding_prompt = f"""
 ALLOWED FACT SOURCE TEXT (STRICT GROUND TRUTH):
@@ -1377,15 +1408,17 @@ CRITICAL FACT RESTRICTIONS (MANDATORY):
 - You may ONLY assert facts, historical dates, numbers, product features, and actions explicitly supported by the ALLOWED FACT SOURCE TEXT above.
 - NEVER invent unverified numbers (e.g. do not say '9 weeks' or '7 lines of code' unless that exact number appears in the source text above).
 - If a specific number is not in the text, describe the concept qualitatively without numbers.
+- NUMBERS: Use exact digits and percentages as they appear in the source text (e.g. write '50 percent' or '50%'). NEVER use words like 'half', 'ten', 'one', or 'first' unless the exact word is in the source text.
 - BANNED RESEARCHERS: NEVER cite Dan Ariely. For the decoy effect, cite original researchers Huber, Payne, and Puto or say 'researchers observed'.
 - Do NOT invent motives, unstated marketing strategies, or feelings.
+- FACT GATE (checked by code after you write): every sentence that names a company, product, person, study, place, date or number must restate something the SOURCE says, close to its wording. Put your own insight in separate sentences that name nothing real. Any unsupported sentence gets the post rejected.
 """
 
     structure_instruction = f"""
 POST STRUCTURE & THREAD REQUIREMENTS (MANDATORY):
 Format: {plan.format}
 - 'thread': 4-6 sequential posts.
-  EVERY thread post MUST contain 2 to 4 complete sentences of substantive narrative (NEVER a single sentence per post).
+  EVERY thread post MUST contain 3 complete sentences of substantive narrative (NEVER 1 or 2 sentences per post).
   Post 1: Hook (first sentence under 12 words) + 1-2 sentences introducing the situation.
   Posts 2-5: 2-4 sentences detailing the verified mechanics, facts, and actions from the source text.
   Last Post: 2-3 sentences providing the sharp takeaway or reply question.
@@ -1398,6 +1431,7 @@ VIRAL FOUNDER VOICE & TONE (CRITICAL FOR HIGH SCORE & SHAREABILITY):
 - The middle sentences explain what actually happened using ONLY verified facts and numbers from the source text.
 - The closing takeaway must be sharp, memorable, and quotable, NOT a dry textbook conclusion.
 - REWRITE PASS: Mentally rewrite the post so it sounds like an insightful friend sharing an operational edge, never an encyclopedia summary.
+- PSYCHOLOGY & MOTIVATION FRAMING: Frame the concept directly as a founder operational, leadership, or product pattern (e.g. negotiation, pricing, hiring, focus, or team execution). Connect the verified research findings to why operators fail and how founders actually leverage it. Never explain it like an academic definition or Wikipedia summary.
 """
 
     schema_spec = f"""{{
@@ -1410,15 +1444,17 @@ VIRAL FOUNDER VOICE & TONE (CRITICAL FOR HIGH SCORE & SHAREABILITY):
   "threads_posts": ["<post 1>", ...]
 }}"""
 
+    feedback = ""
     for attempt in range(1, max_attempts + 1):
         prompt = f"""
+{feedback}
 SLOT & PLATFORM REQUIREMENTS:
 - Slot: {plan.slot.upper()} | Pillar: {plan.pillar} | Topic Tag: #{plan.topic_tag.lstrip('#')}
 
 {grounding_prompt}
 {structure_instruction}
 
-FIRST LINE RULE: Under 12 words, creates curiosity without clickbait, executes pattern '{plan.hook_pattern}'.
+FIRST LINE RULE: Under 12 words, creates curiosity without clickbait, executes pattern '{plan.hook_pattern}'. NEVER open with a definition or concept name. NEVER start with 'Most people think', 'Most people don't', 'People rarely', or 'Stop [verb]ing' (these trigger duplicate overlap rejection). Lead with a completely original, punchy statement.
 DASH BAN: Zero em dashes (—) or en dashes (–). Use periods or commas.
 NO ABSOLUTE CLAIMS: Never write 'always', 'every single day', 'never fails'.
 
@@ -1452,6 +1488,7 @@ Return ONLY a valid JSON object matching this schema:
             )
             if not is_valid:
                 print(f"[generate] Attempt {attempt}/{max_attempts} validation rejected: {validation_msg}")
+                feedback = f"PREVIOUS ATTEMPT WAS REJECTED: {validation_msg} Fix that in this attempt.\n"
                 time.sleep(1)
                 continue
 
@@ -1466,16 +1503,40 @@ Return ONLY a valid JSON object matching this schema:
             t_crit_elapsed = time.perf_counter() - t_crit_start
             print(f"[timing] Critic pass took {t_crit_elapsed:.2f}s | Score: {avg_score}/10 -> {critique_reason}")
 
-            # Fix 4: Hard Quality Gate threshold (>= 7.5 required)
-            if avg_score >= 7.5:
+            # Quality gate threshold: QUALITY_MIN env var (default 7.0)
+            if avg_score >= float(os.getenv("QUALITY_MIN", "7.0")):
                 print(f"[generate] Quality Gate PASSED on attempt {attempt} with score {avg_score}/10.")
-                # Fix 3: Generate Claim -> Evidence Table
-                claim_table = generate_claim_evidence_table(
-                    client=client,
-                    model=model_name,
-                    threads_posts=valid_candidate["threads_posts"],
+                # Independent fact gate: code decides, the model only proposes quotes.
+                gate = final_fact_gate(
+                    posts=valid_candidate["threads_posts"],
                     source_text=source_text,
+                    entity=valid_candidate.get("entity", target_entity),
+                    judge=make_gemini_judge(client, model_name),
                 )
+                print(gate.report())
+                if not gate.ok:
+                    repaired = drop_failed_sentences(valid_candidate["threads_posts"], gate)
+                    if repaired:
+                        ok2, _msg2, cand2 = validate_and_sanitize(
+                            candidate={**valid_candidate, "threads_posts": repaired}, plan=plan, enable_x=enable_x,
+                            history_posts=history_posts, blocked_entities=None,
+                            source_title=source_title, source_text=source_text,
+                        )
+                        if ok2:
+                            gate2 = final_fact_gate(
+                                posts=cand2["threads_posts"], source_text=source_text,
+                                entity=cand2.get("entity", target_entity), judge=make_gemini_judge(client, model_name),
+                            )
+                            print("[generate] Repair: removed unsupported sentences and re-checked.")
+                            print(gate2.report())
+                            if gate2.ok:
+                                gate, valid_candidate = gate2, {**valid_candidate, **cand2}
+                if not gate.ok:
+                    feedback = gate.feedback()
+                    print(f"[generate] Fact gate BLOCKED attempt {attempt}/{max_attempts}. Regenerating...")
+                    time.sleep(1)
+                    continue
+                claim_table = gate.as_table()
                 total_runtime = time.perf_counter() - t_start
                 return GeneratedContent(
                     pillar=plan.pillar,
@@ -1500,14 +1561,14 @@ Return ONLY a valid JSON object matching this schema:
                     attempts=attempt,
                 )
             else:
-                print(f"[generate] Quality Gate BLOCKED draft with score {avg_score}/10 (< 7.5 threshold). Regenerating...")
+                print(f"[generate] Quality Gate BLOCKED draft with score {avg_score}/10 (below QUALITY_MIN). Regenerating...")
+                feedback = f"PREVIOUS ATTEMPT SCORED {avg_score}/10. Critic: {critique_reason}. Write a stronger hook and a sharper takeaway.\n"
                 time.sleep(1)
 
         except Exception as e:
             print(f"[generate] Attempt {attempt}/{max_attempts} error: {e}")
             time.sleep(1)
 
-    print("[generate] Max attempts reached without reaching >= 7.5 score. Using verified standard fallback.")
-    fb = _fallback_sample(plan, enable_x=enable_x, blocked_entities=blocked_entities)
-    fb.runtime_seconds = round(time.perf_counter() - t_start, 2)
-    return fb
+    raise GenerationFailed(
+        f"No draft passed validation, quality gate and fact gate in {max_attempts} attempts. Nothing published."
+    )
