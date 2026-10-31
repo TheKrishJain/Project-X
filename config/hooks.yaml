@@ -1,0 +1,159 @@
+# Hook and Format Engine Configuration for Project-X
+
+# 15 High-Performing Hook Patterns
+hook_patterns:
+  - id: "counterintuitive_claim"
+    name: "Counterintuitive Claim"
+    instruction: "Open with a surprising claim that goes against conventional wisdom."
+    example: "The fastest way to slow down growth is hiring early."
+    weight: 1.0
+
+  - id: "most_people_think"
+    name: "Most People Think X. Actually Y."
+    instruction: "Frame a common misconception against reality."
+    example: "Most founders obsess over product. Actually, distribution decides who survives."
+    weight: 1.0
+
+  - id: "specific_number"
+    name: "Specific Number / Result"
+    instruction: "Lead with a verified metric, conversion rate, or growth timeline."
+    example: "Stripe replaced 9 weeks of merchant underwriting with 7 lines of code."
+    weight: 1.0
+
+  - id: "short_story"
+    name: "Short Story Opener"
+    instruction: "Hook with a specific year, company, and high-stakes inflection point."
+    example: "In 2011, Figma had zero users and four years of R&D ahead."
+    weight: 1.0
+
+  - id: "contrast"
+    name: "Contrast"
+    instruction: "Contrast amateur behavior against professional execution."
+    example: "Amateurs obsess over features. Pros obsess over user activation."
+    weight: 1.0
+
+  - id: "uncomfortable_truth"
+    name: "Uncomfortable Truth"
+    instruction: "State a reality that people know internally but avoid acknowledging."
+    example: "Most customer research fails because founders ask for polite feedback."
+    weight: 1.0
+
+  - id: "nobody_talks_about"
+    name: "Nobody Talks About..."
+    instruction: "Shine a light on an overlooked operational mechanic or cost."
+    example: "Nobody talks about the psychological toll of your first 10 enterprise sales calls."
+    weight: 1.0
+
+  - id: "one_line_observation"
+    name: "One-Line Observation"
+    instruction: "Deliver a crisp, memorable aphorism about markets or psychology."
+    example: "Software is leverage. Distribution is ownership."
+    weight: 1.0
+
+  - id: "mini_case_study"
+    name: "Mini Case Study"
+    instruction: "Break down a specific business move in 3 tight beats: problem, pivot, outcome."
+    example: "Nintendo kept the Game Boy screen monochrome to guarantee 30-hour battery life."
+    weight: 1.0
+
+  - id: "list_of_three"
+    name: "List of 3"
+    instruction: "Group 3 concise, punchy principles or failure modes."
+    example: "Three things kill early-stage SaaS: slow onboarding, bloated pricing, and quiet churn."
+    weight: 1.0
+
+  - id: "myth_vs_reality"
+    name: "Myth vs Reality"
+    instruction: "Dismantle an industry myth with concrete mechanics."
+    example: "The myth is first-mover advantage. The reality is fast-follower distribution."
+    weight: 1.0
+
+  - id: "before_after"
+    name: "Before / After"
+    instruction: "Show the stark transformation before and after a workflow or mental shift."
+    example: "Before: spending 2 hours debugging prompts. After: 5 lines in a rules file."
+    weight: 1.0
+
+  - id: "quiet_pattern"
+    name: "Quiet Pattern"
+    instruction: "Identify a hidden pattern shared by successful companies or operators."
+    example: "Every durable B2B product quietly replaces a spreadsheet."
+    weight: 1.0
+
+  - id: "identity_challenge"
+    name: "Identity Challenge"
+    instruction: "Ask a question that forces the reader to confront their own work habits."
+    example: "Are you building a product or avoiding sales?"
+    weight: 1.0
+
+  - id: "prediction"
+    name: "Prediction / Future Shift"
+    instruction: "Predict a structural shift based on current developer or market behavior."
+    example: "In two years, writing code without deterministic JSON contracts will look reckless."
+    weight: 1.0
+
+# Content Formats
+formats:
+  - id: "one_liner"
+    name: "One-Liner"
+    description: "Punchy standalone post strictly under 120 characters."
+    post_count: 1
+    weight: 1.0
+
+  - id: "short_insight"
+    name: "Short Insight"
+    description: "Single post with 2-4 tight lines (120-280 chars total)."
+    post_count: 1
+    weight: 1.0
+
+  - id: "mini_case_study"
+    name: "Mini Case Study"
+    description: "Structured single post: Hook, turning point, and core takeaway (200-400 chars)."
+    post_count: 1
+    weight: 1.0
+
+  - id: "thread"
+    name: "Thread"
+    description: "Deep dive across 4 to 6 connected posts (each under 480 chars)."
+    post_count: 4
+    min_posts: 4
+    max_posts: 6
+    weight: 1.0
+
+# Supported Threads Topic Tags (Exactly one per post, no '#' in text)
+topic_tags:
+  - "Startups"
+  - "Marketing"
+  - "Psychology"
+  - "AI"
+  - "Business"
+  - "Entrepreneurship"
+  - "Finance"
+  - "Productivity"
+
+# Pillar to Topic Tag Mapping
+pillar_topic_map:
+  tech_for_business: "Business"
+  marketing_case_study: "Marketing"
+  business_strategy: "Startups"
+  ai_hack: "AI"
+  psychology_insight: "Psychology"
+  motivation: "Productivity"
+  finance: "Finance"
+  startups: "Startups"
+
+# First and Last Line Constraints
+rules:
+  first_line:
+    max_words: 12
+    must_stand_alone: true
+    no_clickbait: true
+    require_core_keyword: true
+  last_line:
+    question_probability: 0.30
+    banned_closers:
+      - "thoughts?"
+      - "agree?"
+      - "follow for more"
+      - "let me know in the comments"
+      - "what do you think?"

@@ -58,7 +58,7 @@ jobs:
       - name: Resolve Slot and Execute Auto-Poster
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash' }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-3.1-flash-lite' }}
           THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
           THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
           # Optional X Configuration (only needed if ENABLE_X="true")
@@ -105,12 +105,15 @@ jobs:
           echo "Executing auto-poster for slot: $SLOT (dry_run: $DRY_RUN_FLAG, enable_x: $ENABLE_X_FLAG)"
           python -m src.main --slot "$SLOT" $DRY_RUN_FLAG $ENABLE_X_FLAG
 
-      - name: Commit history (and X usage if enabled)
+      - name: Commit history, analytics, and reports
         if: always()
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/history.json
+          git add data/history.json || true
+          git add data/performance.json || true
+          git add data/weights.json || true
+          git add reports/ || true
           # Only add x_usage.json if modified
           if [ "${{ vars.ENABLE_X }}" = "true" ] || [ "${{ github.event.inputs.enable_x }}" = "true" ]; then
             git add data/x_usage.json || true
@@ -119,7 +122,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes in data files to commit."
           else
-            git commit -m "chore: auto-update post history [skip ci]"
+            git commit -m "chore: auto-update post history and analytics [skip ci]"
             git pull --rebase origin main || true
             git push origin HEAD:${{ github.ref_name }}
           fi

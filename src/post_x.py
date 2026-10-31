@@ -25,6 +25,8 @@ from typing import Any
 import tweepy
 from dotenv import load_dotenv
 
+from src.sanitize import assert_no_dashes, sanitize_post
+
 load_dotenv()
 
 USAGE_FILE = Path(__file__).parent.parent / "data" / "x_usage.json"
@@ -103,6 +105,14 @@ def post_to_x(
 
     if not posts:
         return []
+
+    # Enforce DASH BAN and sanitization
+    sanitized_posts: list[str] = []
+    for p in posts:
+        clean = sanitize_post(p)
+        assert_no_dashes(clean)
+        sanitized_posts.append(clean)
+    posts = sanitized_posts
 
     is_dry_run = dry_run or os.getenv("DRY_RUN", "").lower() == "true"
     monthly_cap = int(os.getenv("X_MONTHLY_CAP", str(DEFAULT_MONTHLY_CAP)))
