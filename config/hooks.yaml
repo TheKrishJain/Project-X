@@ -50,43 +50,43 @@ hook_patterns:
     example: "Software is leverage. Distribution is ownership."
     weight: 1.0
 
-  - id: "mini_case_study"
-    name: "Mini Case Study"
-    instruction: "Break down a specific business move in 3 tight beats: problem, pivot, outcome."
-    example: "Nintendo kept the Game Boy screen monochrome to guarantee 30-hour battery life."
+  - id: "quiet_pattern"
+    name: "Quiet Pattern"
+    instruction: "Point out an invisible behavioral shift or subtle market tailwind."
+    example: "The best enterprise sales reps rarely send follow-up emails after demos."
     weight: 1.0
 
-  - id: "list_of_three"
-    name: "List of 3"
-    instruction: "Group 3 concise, punchy principles or failure modes."
-    example: "Three things kill early-stage SaaS: slow onboarding, bloated pricing, and quiet churn."
+  - id: "post_mortem"
+    name: "Post-Mortem Opener"
+    instruction: "Deconstruct why a seemingly sound strategy or launch collapsed."
+    example: "Quibi raised $1.75B and died in 6 months because it banned screenshots."
     weight: 1.0
 
   - id: "myth_vs_reality"
     name: "Myth vs Reality"
-    instruction: "Dismantle an industry myth with concrete mechanics."
-    example: "The myth is first-mover advantage. The reality is fast-follower distribution."
+    instruction: "Dismantle a popular industry myth with concrete mechanics."
+    example: "Early traction is rarely viral loops. It is manual, unscalable sales."
     weight: 1.0
 
   - id: "before_after"
     name: "Before / After"
-    instruction: "Show the stark transformation before and after a workflow or mental shift."
-    example: "Before: spending 2 hours debugging prompts. After: 5 lines in a rules file."
+    instruction: "Juxtapose the manual painful past against the streamlined present."
+    example: "Before AWS, launching a web app meant racking physical servers in a colocation facility."
     weight: 1.0
 
-  - id: "quiet_pattern"
-    name: "Quiet Pattern"
-    instruction: "Identify a hidden pattern shared by successful companies or operators."
-    example: "Every durable B2B product quietly replaces a spreadsheet."
+  - id: "question_hook"
+    name: "Provocative Question"
+    instruction: "Ask a question that reveals a flaw in common operational assumptions."
+    example: "Why do bootstrapped SaaS apps with 4 engineers generate more cash flow than Series B startups?"
     weight: 1.0
 
-  - id: "identity_challenge"
-    name: "Identity Challenge"
-    instruction: "Ask a question that forces the reader to confront their own work habits."
-    example: "Are you building a product or avoiding sales?"
+  - id: "contrarian_rule"
+    name: "Contrarian Rule"
+    instruction: "State an operational rule that sounds wrong until you see the data."
+    example: "Never offer annual billing discounts until your monthly churn drops below 2%."
     weight: 1.0
 
-  - id: "prediction"
+  - id: "prediction_shift"
     name: "Prediction / Future Shift"
     instruction: "Predict a structural shift based on current developer or market behavior."
     example: "In two years, writing code without deterministic JSON contracts will look reckless."
@@ -94,31 +94,13 @@ hook_patterns:
 
 # Content Formats
 formats:
-  - id: "one_liner"
-    name: "One-Liner"
-    description: "Punchy standalone post strictly under 120 characters."
-    post_count: 1
-    weight: 0.2
-
-  - id: "short_insight"
-    name: "Short Insight"
-    description: "Single post with 2-4 tight lines (120-280 chars total)."
-    post_count: 1
-    weight: 0.5
-
-  - id: "mini_case_study"
-    name: "Mini Case Study"
-    description: "Structured single post: Hook, turning point, and core takeaway (200-400 chars)."
-    post_count: 1
-    weight: 1.5
-
   - id: "thread"
     name: "Thread"
     description: "Deep dive across 4 to 6 connected posts (each under 480 chars)."
     post_count: 4
     min_posts: 4
     max_posts: 6
-    weight: 2.0
+    weight: 1.0
 
 # Supported Threads Topic Tags (Exactly one per post, no '#' in text)
 topic_tags:
