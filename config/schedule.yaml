@@ -25,12 +25,16 @@ slots:
   night:
     # 09:00 PM IST corresponds to 15:30 PM UTC
     cron: "30 15 * * *"
-    description: "Night psychology and motivation slot"
+    description: "Night business strategy, operational case studies, psychology and motivation slot"
     pillars:
-      - name: "psychology_insight"
-        weight: 0.75
-      - name: "motivation"
+      - name: "tech_for_business"
+        weight: 0.50
+      - name: "business_strategy"
         weight: 0.25
+      - name: "psychology_insight"
+        weight: 0.15
+      - name: "motivation"
+        weight: 0.10
     industries:
       - "finance"
       - "marketing"
@@ -48,13 +52,3 @@ threads_rules:
     threads_thread: true
     min_posts: 4
     max_posts: 5
-  saturday:
-    x_thread: false
-    threads_thread: true
-    min_posts: 4
-    max_posts: 5
-  default:
-    x_thread: false
-    threads_thread: false
-    min_posts: 1
-    max_posts: 1

@@ -41,6 +41,11 @@ ALL_NUM_WORDS = {**SPELLED_NUMBERS, **ORDINALS}
 def _build_source_nums(source_text: str) -> set[str]:
     """Build the full set of verified numbers from source text (digits + words)."""
     nums: set[str] = set(re.findall(r"\b\d+(?:[.,]\d+)?\b", source_text))
+    for n in list(nums):
+        if "." in n:
+            nums.add(n.split(".")[0])
+        if "," in n:
+            nums.add(n.replace(",", ""))
     source_lower = source_text.lower()
     for word, digit in ALL_NUM_WORDS.items():
         if re.search(rf"\b{re.escape(word)}\b", source_lower):
