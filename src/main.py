@@ -30,7 +30,7 @@ from src.generate import (
     load_schedule,
     resolve_plan,
 )
-from src.post_threads import post_to_threads
+from src.post_threads import get_post_details, post_to_threads
 from src.post_x import post_to_x
 
 load_dotenv()
@@ -122,20 +122,26 @@ def main() -> int:
         action="store_true",
         help="Skip jitter sleep even if not dry-run",
     )
+    parser.add_argument(
+        "--now",
+        action="store_true",
+        help="Skip jitter sleep and publish immediately (alias for --no-sleep)",
+    )
 
     args = parser.parse_args()
     date_val = args.date or args.day
     enable_x = args.enable_x
     is_dry_run = args.dry_run
+    skip_sleep = is_dry_run or args.no_sleep or args.now
 
-    # 1. Random jitter sleep: 0 to 35 minutes (skipped on dry-run or --no-sleep)
-    if not is_dry_run and not args.no_sleep:
+    # 1. Random jitter sleep: 0 to 35 minutes (skipped on dry-run or --no-sleep / --now)
+    if not skip_sleep:
         jitter_seconds = random.randint(0, 35 * 60)
         minutes, seconds = divmod(jitter_seconds, 60)
         print(f"[main] Applying random jitter sleep: {jitter_seconds}s ({minutes}m {seconds}s)...")
         time.sleep(jitter_seconds)
     else:
-        print("[main] Skipping jitter sleep (dry-run or no-sleep enabled).")
+        print("[main] Skipping jitter sleep (dry-run, --no-sleep, or --now enabled).")
 
     # 2. Resolve plan
     schedule = load_schedule()
@@ -189,6 +195,11 @@ def main() -> int:
         threads_ids = post_to_threads(content.threads_posts, dry_run=is_dry_run)
         threads_success = True
         print(f"[Threads Dispatch] Succeeded! Post IDs: {threads_ids}")
+        if threads_ids and not is_dry_run:
+            details = get_post_details(threads_ids[0])
+            permalink = details.get("permalink")
+            if permalink:
+                print(f"[Threads Dispatch] Live Permalink: {permalink}")
     except Exception as e:
         print(f"[Threads Dispatch] FAILED: {e}", file=sys.stderr)
 

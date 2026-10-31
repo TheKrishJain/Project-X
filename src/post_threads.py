@@ -62,6 +62,25 @@ def refresh_token(access_token: str | None = None) -> dict[str, Any]:
     return data
 
 
+def get_post_details(post_id: str, access_token: str | None = None) -> dict[str, Any]:
+    """Retrieve details (id, text, permalink, timestamp) of a published Threads post."""
+    token = (access_token or os.getenv("THREADS_ACCESS_TOKEN", "")).strip()
+    if not token or not post_id:
+        return {}
+    url = f"{THREADS_BASE_URL}/{post_id}"
+    params = {
+        "fields": "id,text,permalink,timestamp",
+        "access_token": token,
+    }
+    try:
+        resp = requests.get(url, params=params, timeout=15)
+        if resp.status_code == 200:
+            return resp.json()
+    except Exception as e:
+        print(f"[post_threads] Notice: could not fetch post details for {post_id}: {e}")
+    return {}
+
+
 def post_to_threads(posts: list[str], dry_run: bool = False) -> list[str]:
     """Publish single post or sequential thread to Meta Threads.
 
