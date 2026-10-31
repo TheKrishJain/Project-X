@@ -1377,8 +1377,14 @@ def generate_content(
             c = re.sub(r"\s*\(.*?\)", "", c).strip().lower()
             return any(b and (b in c or c in b) for b in blocked_entities)
 
-        rest = [c for c in candidates if c != target_entity and not _blocked(c)]
-        random.shuffle(rest)
+        _pri = ["Door-in-the-face technique", "Foot-in-the-door technique", "Pareto principle", "Kaizen", "Deliberate practice", "Anchoring effect", "Decoy effect", "Social proof", "Loss aversion"]
+        _p_cands = [c for c in _pri if c in candidates and not _blocked(c)]
+        _o_cands = [c for c in candidates if c not in _pri and c != target_entity and not _blocked(c)]
+        random.shuffle(_p_cands)
+        random.shuffle(_o_cands)
+        rest = _p_cands + _o_cands
+
+
         if not rest and not target_entity:
             print(f"[grounding] Every {plan.pillar} topic was used recently; add more to pillar_entity_pools.")
         for cand in ([target_entity] if target_entity else []) + rest:
