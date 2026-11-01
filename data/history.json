@@ -826,5 +826,31 @@
       "18018278879746765",
       "18116431799150994"
     ]
+  },
+  {
+    "timestamp": "2026-11-01T06:03:35.192452+00:00",
+    "slot": "morning",
+    "date": "2026-11-01T06:03:35.192120+00:00",
+    "weekday": "sunday",
+    "pillar": "business_strategy",
+    "industry": null,
+    "entity": "Toyota Production System",
+    "topic": "Eliminating overproduction waste in management",
+    "hook_pattern": "Counterintuitive Claim",
+    "format": "short_insight",
+    "topic_tag": "Startups",
+    "is_trend_jack": false,
+    "critique_score": 7.6,
+    "critique_reason": "hook=8 (Short, striking first line under 12 words that names a hidden danger.) | spec=7 (Mentions Taiichi Ohno, Eiji Toyoda, and exact operational timeframes.) | orig=7 (Frames classic manufacturing waste as a modern knowledge-work problem.) | voice=8 (Punchy, analytical, zero fluff, sounds like a sharp operator.) | share=8 (Makes managers instantly rethink internal slide decks and unasked deliverables.)",
+    "is_x_thread": false,
+    "is_threads_thread": false,
+    "x_posts": [],
+    "threads_posts": [
+      "Overproduction is the quietest operational killer.\n\nTaiichi Ohno and Eiji Toyoda developed the Toyota Production System between 1948 and 1975. The system defines the waste of overproduction as the largest of eight kinds of waste. What internal deliverable does your team generate before anyone actually requests it?"
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "18038246687892746"
+    ]
   }
 ]
