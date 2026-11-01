@@ -37,14 +37,4 @@ slots:
       - "operations"
       - "startups"
 
-threads_rules:
-  thursday:
-    x_thread: true
-    threads_thread: true
-    min_posts: 4
-    max_posts: 5
-  tuesday:
-    x_thread: false
-    threads_thread: true
-    min_posts: 4
-    max_posts: 5
+threads_rules: {}

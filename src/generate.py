@@ -44,6 +44,19 @@ from src.sanitize import (
 load_dotenv()
 
 
+SINGLE_POST_GUIDE = """
+THREADS-NATIVE SINGLE POST (MANDATORY, overrides the 'thread' rules above):
+- threads_posts must contain exactly ONE string, at most {limit} characters.
+- Line 1 is the hook (under 10 words) and must stand alone. Then a blank line.
+- Body is 2 or 3 short sentences in spoken rhythm. First: one concrete fact from the source, naming the company, product or person. Second: the trade-off or mechanism. Last: a takeaway that names no real company or person.
+- It should read like an opinion with one fact inside, never like a summary. No lists, no hashtags, no emojis.
+"""
+
+REPLY_QUESTION_RULE = """
+REPLY QUESTION (MANDATORY for this post): the final sentence is one specific question, under 14 words, that an operator can answer from their own work. It names no company or person. Never 'Thoughts?' or 'Agree?'.
+"""
+
+
 class GenerationFailed(RuntimeError):
     """No draft passed every gate. Nothing gets published."""
 
@@ -594,7 +607,7 @@ def select_format(
     names = [f.get("id", f.get("name", "thread")).lower() for f in formats_config]
     if not names:
         return "thread"
-    pool_weights = [weights.get(n, 1.0) for n in names]
+    pool_weights = [float(f.get("weight", 1.0)) * weights.get(n, 1.0) for f, n in zip(formats_config, names)]
     return random.choices(names, weights=pool_weights, k=1)[0].lower()
 
 
@@ -1564,6 +1577,16 @@ Post 4: Build for constraints your customers actually care about instead of chas
   ]
 }}"""
 
+    if not plan.is_threads_thread:
+        schema_spec = re.sub(
+            r'"threads_posts": \[.*?\n  \]',
+            lambda m: '"threads_posts": [\n    "<ONE post only: hook line under 10 words, blank line, then 2-3 short sentences>"\n  ]',
+            schema_spec, flags=re.S,
+        )
+        structure_instruction = structure_instruction.split("GOLD STANDARD BENCHMARK")[0] + SINGLE_POST_GUIDE.format(
+            limit=380 if plan.format == "short_insight" else 460)
+    if plan.invite_reply_question:
+        structure_instruction += REPLY_QUESTION_RULE
     feedback = ""
     for attempt in range(1, max_attempts + 1):
         prompt = f"""
