@@ -174,7 +174,7 @@ def final_fact_gate(posts: list[str], source_text: str, entity: str, judge: Judg
 
     try:
         prompt = JUDGE_PROMPT.format(
-            source=src[:8000], sentences="\n".join(f"{i}. {s}" for i, s in enumerate(sentences, 1))
+            source=src[:4000], sentences="\n".join(f"{i}. {s}" for i, s in enumerate(sentences, 1))
         )
         by_i = {int(x.get("i", 0)): x for x in _parse_items(judge(prompt))}
     except Exception as e:  # fail closed

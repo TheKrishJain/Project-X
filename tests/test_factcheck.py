@@ -144,6 +144,49 @@ def test_repair_drops_unverified_numbers():
     assert fixed and "30" not in fixed[0] and "monochrome" in fixed[0], fixed
 
 
+def test_retry_wrapper_404_and_per_day_skip():
+    from unittest.mock import patch
+    from src.llm_retry import RetryingClient
+
+    class FakeModels:
+        def __init__(self, side_effects):
+            self.side_effects = side_effects
+            self.calls = []
+
+        def generate_content(self, model, contents, config=None, **kw):
+            self.calls.append(model)
+            val = self.side_effects[model].pop(0)
+            if isinstance(val, Exception):
+                raise val
+            return val
+
+    class FakeClient:
+        def __init__(self, side_effects):
+            self.models = FakeModels(side_effects)
+
+    # 1. 404 skip
+    fake1 = FakeClient({
+        "m-404": [Exception("404 NOT_FOUND. model is not found")],
+        "m-ok": ["ok"],
+    })
+    sleeps = []
+    with patch("time.sleep", side_effect=sleeps.append):
+        c1 = RetryingClient(fake1, fallbacks=["m-ok"])
+        res1 = c1.models.generate_content("m-404", "prompt")
+    assert res1 == "ok" and fake1.models.calls == ["m-404", "m-ok"] and len(sleeps) == 0
+
+    # 2. Per-day 429 skip without sleep
+    fake2 = FakeClient({
+        "m-daily": [Exception("429 RESOURCE_EXHAUSTED. Requests per day limit exceeded")],
+        "m-ok": ["ok2"],
+    })
+    sleeps2 = []
+    with patch("time.sleep", side_effect=sleeps2.append):
+        c2 = RetryingClient(fake2, fallbacks=["m-ok"])
+        res2 = c2.models.generate_content("m-daily", "prompt")
+    assert res2 == "ok2" and fake2.models.calls == ["m-daily", "m-ok"] and len(sleeps2) == 0
+
+
 def live_tests():
     from google import genai
     from src.factcheck import make_gemini_judge
