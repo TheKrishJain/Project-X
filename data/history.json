@@ -884,5 +884,37 @@
       "18133262530813282",
       "18119609155783111"
     ]
+  },
+  {
+    "timestamp": "2026-11-01T19:49:07.250055+00:00",
+    "slot": "night",
+    "date": "2026-11-01T19:49:07.249607+00:00",
+    "weekday": "sunday",
+    "pillar": "tech_for_business",
+    "industry": null,
+    "entity": "Cloudflare",
+    "topic": "Infrastructure neutrality and platform policy",
+    "hook_pattern": "Post-Mortem Opener",
+    "format": "thread",
+    "topic_tag": "Business",
+    "is_trend_jack": false,
+    "critique_score": 8.0,
+    "critique_reason": "hook=8 (Short, punchy, and challenges the conventional wisdom of 'neutrality' as a startup virtue.) | spec=8 (Cites specific market share (21.3%) and names controversial entities like The Daily Stormer and Kiwi Farms.) | orig=7 (Connects infrastructure scale to the inevitable erosion of neutrality, a nuanced take on platform governance.) | voice=9 (Clean, minimalist, and avoids corporate jargon; sounds like a founder analyzing a case study over coffee.) | share=8 (High-signal observation that operators in the SaaS and infrastructure space will find highly relevant.)",
+    "is_x_thread": false,
+    "is_threads_thread": true,
+    "x_posts": [],
+    "threads_posts": [
+      "Neutral infrastructure becomes a liability at scale.\n\nFounders often build systems designed to be invisible.\n\nPublic pressure eventually forces these systems to take sides.\n\nCloudflare acted as a reverse proxy for websites.",
+      "The service provides cybersecurity and DDoS mitigation for users.\n\nIt maintains a network used by 21.3 percent of all websites.\n\nExecutives historically advocated for remaining a neutral infrastructure provider.\n\nThe firm terminated services for The Daily Stormer and 8chan.",
+      "They also removed Kiwi Farms following significant public pressure.\n\nCloudflare expanded to offer edge computing through Workers.\n\nThe company integrated artificial intelligence through acquiring Replicate.\n\nIt also launched tools to manage AI bots and scrapers.",
+      "Policy trade-offs are inevitable when your product touches the entire internet.\n\nScale forces every neutral tool to define its own moral boundaries."
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "18350620201267209",
+      "18495838288109061",
+      "18117737279115088",
+      "18146932171598578"
+    ]
   }
 ]
