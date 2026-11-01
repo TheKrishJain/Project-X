@@ -852,5 +852,37 @@
     "threads_post_ids": [
       "18038246687892746"
     ]
+  },
+  {
+    "timestamp": "2026-11-01T10:50:06.823028+00:00",
+    "slot": "morning",
+    "date": "2026-11-01T10:50:06.822593+00:00",
+    "weekday": "sunday",
+    "pillar": "business_strategy",
+    "industry": null,
+    "entity": "Costco",
+    "topic": "Membership models and wholesale retail strategy",
+    "hook_pattern": "Short Story Opener",
+    "format": "thread",
+    "topic_tag": "Startups",
+    "is_trend_jack": false,
+    "critique_score": 7.6,
+    "critique_reason": "hook=8 (Short, punchy, and immediately challenges the standard retail mindset.) | spec=8 (Includes exact founding dates, locations, and the transition from Price Club to Costco.) | orig=6 (The historical context is interesting, but the conclusion is a standard business school takeaway.) | voice=9 (Clean, direct, and avoids the fluff typical of LinkedIn business posts.) | share=7 (Strong enough for operators to save as a mental model for subscription-based pricing.)",
+    "is_x_thread": false,
+    "is_threads_thread": true,
+    "x_posts": [],
+    "threads_posts": [
+      "Charging for entry creates a different customer. Most retailers fight for the transaction at the shelf. Some businesses win by making the transaction a secondary benefit of membership.\n\nPrice Club opened its first store on July 12, 1976, on Morena Boulevard.",
+      "The model targeted small business owners by selling items in bulk at no-frills outlets. Access to these discounted prices required an annual membership fee.",
+      "Costco later opened its first warehouse in Seattle on September 15, 1983. They expanded the model by enrolling individual consumers and selling private-label products.",
+      "Customer loyalty is strongest when the incentive to save is baked into the cost of entry. Aligning your revenue model with user behavior turns recurring friction into a competitive advantage."
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "17994122601025445",
+      "18134362105664466",
+      "18133262530813282",
+      "18119609155783111"
+    ]
   }
 ]
