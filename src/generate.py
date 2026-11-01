@@ -47,14 +47,15 @@ load_dotenv()
 SINGLE_POST_GUIDE = """
 THREADS-NATIVE SINGLE POST (MANDATORY, overrides the 'thread' rules above):
 - threads_posts must contain exactly ONE string, at most {limit} characters.
-- Line 1 is the hook (under 10 words) and must stand alone. Then a blank line.
-- Body is 2 or 3 short sentences in spoken rhythm. First: one concrete fact from the source, naming the company, product or person. Second: the trade-off or mechanism. Last: a takeaway that names no real company or person.
+- Line 1 is the hook (under 10 words) and must stand alone. Then a blank line. The hook must not use stock phrases like "quietest", "silent killer", "hidden cost".
+- Body is 2 or 3 short sentences in spoken rhythm.
+- The fact sentence must state a decision, number or consequence, never a date range or founding year, naming the company, product or person.
+- Include one sentence on why it matters, in plain words.
+- NEVER end the post with a question. The last sentence is a plain statement takeaway that names no real company or person.
 - It should read like an opinion with one fact inside, never like a summary. No lists, no hashtags, no emojis.
 """
 
-REPLY_QUESTION_RULE = """
-REPLY QUESTION (MANDATORY for this post): the final sentence is one specific question, under 14 words, that an operator can answer from their own work. It names no company or person. Never 'Thoughts?' or 'Agree?'.
-"""
+REPLY_QUESTION_RULE = ""
 
 
 class GenerationFailed(RuntimeError):
@@ -687,7 +688,7 @@ def resolve_plan(
     if topic_tag not in VALID_TOPIC_TAGS:
         topic_tag = "Business"
 
-    invite_reply_question = (random.random() < 0.30)
+    invite_reply_question = False
 
     return PostPlan(
         slot=slot,
@@ -968,6 +969,10 @@ def validate_and_sanitize(
                 if b_closer in last_line:
                     return False, f"Last line contains forbidden engagement bait: '{last_line}'.", candidate
 
+        # Reject any post whose final sentence ends with "?"
+        if clean_text.rstrip().rstrip(" \"'\u201c\u201d\u2018\u2019)]}").endswith("?"):
+            return False, "Post must not end with a question. End with a statement.", candidate
+
         # Format specific length limits
         if plan.format == "one_liner" and len(clean_text) > 120:
             return False, f"One-liner format must be under 120 chars (got {len(clean_text)} chars).", candidate
@@ -990,6 +995,8 @@ def validate_and_sanitize(
             for idx, post in enumerate(x_posts, start=1):
                 clean_x = sanitize_post(str(post))
                 assert_no_dashes(clean_x)
+                if clean_x.rstrip().rstrip(" \"'\u201c\u201d\u2018\u2019)]}").endswith("?"):
+                    return False, "Post must not end with a question. End with a statement.", candidate
                 if len(clean_x) > 270:
                     return False, f"X post {idx} exceeds 270 characters ({len(clean_x)} chars).", candidate
                 sanitized_x.append(clean_x)
@@ -1537,10 +1544,11 @@ Format: {plan.format}
 - 'thread': EXACTLY 5 sequential posts in the array.
   Post 1: Hook (first sentence strictly under 10 words) + 1-2 sentences introducing the tension.
   Posts 2-4: 2-3 sentences detailing the verified mechanics, facts, and actions from the source text.
-  Post 5: 2 sentences providing the sharp founder takeaway or reply question.
+  Post 5: 2 sentences providing the sharp founder takeaway.
   EVERY post MUST contain 2 to 3 sentences (NEVER 1 sentence per post, NEVER more than 3 sentences).
 - 'short_insight' or 'mini_case_study': single post containing 3 to 4 complete sentences.
 - THREADS FORMATTING: Do NOT write manual numbering like [1/5], (1/5), or '1.' in the posts.
+- NEVER end the post with a question. The last sentence is a plain statement takeaway that names no real company or person.
 
 VIRAL FOUNDER VOICE & TONE (CRITICAL FOR HIGH SCORE & SHAREABILITY):
 - Voice: Calm, observant, sharp young Mumbai founder talking to another founder over coffee.
@@ -1573,7 +1581,7 @@ Post 4: Build for constraints your customers actually care about instead of chas
     "<post 2 text: 2-3 sentences detailing verified experiment/facts from source>",
     "<post 3 text: 2-3 sentences detailing verified mechanics/control group from source>",
     "<post 4 text: 2-3 sentences explaining the operational breakdown/mechanism>",
-    "<post 5 text: 2 sentences sharp founder takeaway or closing question>"
+    "<post 5 text: 2 sentences sharp founder takeaway>"
   ]
 }}"""
 
@@ -1585,8 +1593,7 @@ Post 4: Build for constraints your customers actually care about instead of chas
         )
         structure_instruction = structure_instruction.split("GOLD STANDARD BENCHMARK")[0] + SINGLE_POST_GUIDE.format(
             limit=380 if plan.format == "short_insight" else 460)
-    if plan.invite_reply_question:
-        structure_instruction += REPLY_QUESTION_RULE
+
     feedback = ""
     for attempt in range(1, max_attempts + 1):
         prompt = f"""

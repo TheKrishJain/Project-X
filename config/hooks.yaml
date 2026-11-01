@@ -142,7 +142,7 @@ rules:
     no_clickbait: true
     require_core_keyword: true
   last_line:
-    question_probability: 0.30
+    question_probability: 0
     banned_closers:
       - "thoughts?"
       - "agree?"
