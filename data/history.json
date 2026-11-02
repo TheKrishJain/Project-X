@@ -916,5 +916,31 @@
       "18117737279115088",
       "18146932171598578"
     ]
+  },
+  {
+    "timestamp": "2026-11-02T23:16:52.059982+00:00",
+    "slot": "night",
+    "date": "2026-11-02T23:16:52.059635+00:00",
+    "weekday": "monday",
+    "pillar": "business_strategy",
+    "industry": null,
+    "entity": "Southwest Airlines",
+    "topic": "Operational efficiency through simplified service models",
+    "hook_pattern": "Nobody Talks About...",
+    "format": "short_insight",
+    "topic_tag": "Startups",
+    "is_trend_jack": false,
+    "critique_score": 7.0,
+    "critique_reason": "hook=6 (The hook is a bit clich\u00e9, but the brevity keeps it functional.) | spec=8 (Correctly identifies the Boeing 737 fleet and single-class cabin as the core operational moat.) | orig=6 (The 'complexity is expensive' angle is a classic business school observation.) | voice=8 (Clean, punchy, and avoids unnecessary fluff; sounds like a founder observing a pattern.) | share=7 (Solid mental model for operators, though it lacks a fresh 'aha' moment for seasoned founders.)",
+    "is_x_thread": false,
+    "is_threads_thread": false,
+    "x_posts": [],
+    "threads_posts": [
+      "Nobody talks about the cost of complexity. Standardizing every piece of hardware eliminates the friction of managing different operational workflows. Simplifying the product is often the only way to scale without breaking the foundation."
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "18163996615499563"
+    ]
   }
 ]
