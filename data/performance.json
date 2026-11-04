@@ -9,12 +9,12 @@
     "topic_tag": "Psychology",
     "slot": "night",
     "length": 67,
-    "views": 36,
+    "views": 48,
     "likes": 0,
     "replies": 5,
     "reposts": 0,
     "quotes": 0,
-    "score": 111,
+    "score": 123,
     "sample_text": "Most people think efficiency means doing the work for the customer."
   },
   {
@@ -88,5 +88,23 @@
     "quotes": 0,
     "score": 58,
     "sample_text": "Neutral infrastructure becomes a liability at scale.\n\nFounders often build systems designed to be invisible.\n\nPublic pressure eventually for"
+  },
+  {
+    "post_id": "18163996615499563",
+    "timestamp": "2026-11-02T23:16:52.059982+00:00",
+    "topic": "Operational efficiency through simplified service models",
+    "pillar": "business_strategy",
+    "hook": "Nobody Talks About...",
+    "format": "short_insight",
+    "topic_tag": "Startups",
+    "slot": "night",
+    "length": 237,
+    "views": 17,
+    "likes": 0,
+    "replies": 0,
+    "reposts": 0,
+    "quotes": 0,
+    "score": 17,
+    "sample_text": "Nobody talks about the cost of complexity. Standardizing every piece of hardware eliminates the friction of managing different operational w"
   }
 ]

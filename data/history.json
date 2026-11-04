@@ -942,5 +942,31 @@
     "threads_post_ids": [
       "18163996615499563"
     ]
+  },
+  {
+    "timestamp": "2026-11-04T21:38:10.612870+00:00",
+    "slot": "night",
+    "date": "2026-11-04T21:38:10.612555+00:00",
+    "weekday": "wednesday",
+    "pillar": "business_strategy",
+    "industry": null,
+    "entity": "Netflix",
+    "topic": "Streaming transition strategy",
+    "hook_pattern": "Before / After",
+    "format": "mini_case_study",
+    "topic_tag": "Startups",
+    "is_trend_jack": false,
+    "critique_score": 7.0,
+    "critique_reason": "hook=7 (Short, punchy, and sets up a clear narrative arc immediately.) | spec=7 (Correctly identifies the DVD-to-streaming pivot and the specific logistical constraint of VHS.) | orig=6 (The 'vehicle vs. destination' insight is solid, though the Netflix origin story is well-trodden territory.) | voice=8 (Clean, direct, and avoids unnecessary fluff; sounds like a founder sharing a quick lesson.) | share=7 (High-signal takeaway for founders currently struggling with their MVP vs. long-term vision.)",
+    "is_x_thread": false,
+    "is_threads_thread": false,
+    "x_posts": [],
+    "threads_posts": [
+      "Rent DVDs first, stream movies later.\n\nNetflix started as a DVD rental service to build a customer base before launching streaming. They rejected VHS rentals because the items were too delicate to ship. The product you build currently is often just the vehicle to reach the market you actually want."
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "18153154924556890"
+    ]
   }
 ]
