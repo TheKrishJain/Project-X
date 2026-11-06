@@ -968,5 +968,39 @@
     "threads_post_ids": [
       "18153154924556890"
     ]
+  },
+  {
+    "timestamp": "2026-11-06T11:30:40.567613+00:00",
+    "slot": "morning",
+    "date": "2026-11-06T11:30:40.567201+00:00",
+    "weekday": "friday",
+    "pillar": "tech_for_business",
+    "industry": null,
+    "entity": "Shopify",
+    "topic": "Platform strategy through internal tools",
+    "hook_pattern": "Contrarian Rule",
+    "format": "thread",
+    "topic_tag": "Business",
+    "is_trend_jack": false,
+    "critique_score": 7.2,
+    "critique_reason": "hook=7 (Short, punchy, and challenges the common 'market-first' startup dogma.) | spec=8 (Cites specific origins like Snowdevil, Ruby on Rails, and the Liquid template language.) | orig=6 (The 'build for yourself' narrative is a classic founder trope, though well-executed here.) | voice=8 (Clean, direct, and avoids the fluff typical of LinkedIn-style business storytelling.) | share=7 (Strong mental model for early-stage founders that is highly bookmarkable.)",
+    "is_x_thread": false,
+    "is_threads_thread": true,
+    "x_posts": [],
+    "threads_posts": [
+      "Build products for your own problems first. Most founders chase abstract market gaps while ignoring the friction in their daily operations. The best solutions often hide in the software you build just to survive.",
+      "Tobias L\u00fctke built the Snowdevil online store for snowboarding equipment in 2004. He used the Ruby on Rails framework because he was dissatisfied with existing e-commerce products.",
+      "The team launched the platform as Shopify in 2006.",
+      "In 2009, they launched an API and App Store to let others build on their foundation.",
+      "Solve your own operational bottleneck before you try to sell a solution to others. The most durable products are often just internal tools that accidentally found a market."
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "17958131151294331",
+      "18107367566272263",
+      "18080580644400463",
+      "18388773280224111",
+      "18129798754641325"
+    ]
   }
 ]

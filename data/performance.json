@@ -106,5 +106,23 @@
     "quotes": 0,
     "score": 17,
     "sample_text": "Nobody talks about the cost of complexity. Standardizing every piece of hardware eliminates the friction of managing different operational w"
+  },
+  {
+    "post_id": "18153154924556890",
+    "timestamp": "2026-11-04T21:38:10.612870+00:00",
+    "topic": "Streaming transition strategy",
+    "pillar": "business_strategy",
+    "hook": "Before / After",
+    "format": "mini_case_study",
+    "topic_tag": "Startups",
+    "slot": "night",
+    "length": 299,
+    "views": 103,
+    "likes": 0,
+    "replies": 0,
+    "reposts": 0,
+    "quotes": 0,
+    "score": 103,
+    "sample_text": "Rent DVDs first, stream movies later.\n\nNetflix started as a DVD rental service to build a customer base before launching streaming. They rej"
   }
 ]
