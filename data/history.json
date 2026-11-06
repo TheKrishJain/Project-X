@@ -1002,5 +1002,31 @@
       "18388773280224111",
       "18129798754641325"
     ]
+  },
+  {
+    "timestamp": "2026-11-06T21:02:53.771630+00:00",
+    "slot": "night",
+    "date": "2026-11-06T21:02:53.771278+00:00",
+    "weekday": "friday",
+    "pillar": "business_strategy",
+    "industry": null,
+    "entity": "Wii",
+    "topic": "Strategic differentiation through hardware constraints",
+    "hook_pattern": "Most People Think X. Actually Y.",
+    "format": "mini_case_study",
+    "topic_tag": "Startups",
+    "is_trend_jack": false,
+    "critique_score": 7.4,
+    "critique_reason": "hook=7 (Punchy and contrarian, though slightly generic in its phrasing.) | spec=8 (Correctly identifies the Wii's strategic pivot against the PS3 and Xbox 360.) | orig=7 (A classic case study, but framed well for modern product-led growth.) | voice=8 (Short, direct, and avoids corporate jargon; feels like a founder's observation.) | share=7 (Strong mental model for product managers and founders to reference during roadmap planning.)",
+    "is_x_thread": false,
+    "is_threads_thread": false,
+    "x_posts": [],
+    "threads_posts": [
+      "Winning requires ignoring your competitors' technical benchmarks. Nintendo ignored the raw computational power of the Xbox 360 and PlayStation 3 to build the Wii. Building for a specific interaction often beats building for the highest spec."
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "17998985811047706"
+    ]
   }
 ]

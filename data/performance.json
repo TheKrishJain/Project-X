@@ -81,12 +81,12 @@
     "topic_tag": "Business",
     "slot": "night",
     "length": 223,
-    "views": 13,
+    "views": 14,
     "likes": 0,
     "replies": 3,
     "reposts": 0,
     "quotes": 0,
-    "score": 58,
+    "score": 59,
     "sample_text": "Neutral infrastructure becomes a liability at scale.\n\nFounders often build systems designed to be invisible.\n\nPublic pressure eventually for"
   },
   {
@@ -99,12 +99,12 @@
     "topic_tag": "Startups",
     "slot": "night",
     "length": 237,
-    "views": 17,
+    "views": 18,
     "likes": 0,
     "replies": 0,
     "reposts": 0,
     "quotes": 0,
-    "score": 17,
+    "score": 18,
     "sample_text": "Nobody talks about the cost of complexity. Standardizing every piece of hardware eliminates the friction of managing different operational w"
   },
   {
@@ -117,12 +117,12 @@
     "topic_tag": "Startups",
     "slot": "night",
     "length": 299,
-    "views": 103,
+    "views": 105,
     "likes": 0,
     "replies": 0,
     "reposts": 0,
     "quotes": 0,
-    "score": 103,
+    "score": 105,
     "sample_text": "Rent DVDs first, stream movies later.\n\nNetflix started as a DVD rental service to build a customer base before launching streaming. They rej"
   }
 ]
