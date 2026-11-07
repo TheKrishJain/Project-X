@@ -1028,5 +1028,39 @@
     "threads_post_ids": [
       "17998985811047706"
     ]
+  },
+  {
+    "timestamp": "2026-11-07T10:53:08.786240+00:00",
+    "slot": "morning",
+    "date": "2026-11-07T10:53:08.785872+00:00",
+    "weekday": "saturday",
+    "pillar": "ai_hack",
+    "industry": null,
+    "entity": "Gemini",
+    "topic": "Standardizing AI model output formats",
+    "hook_pattern": "Prediction / Future Shift",
+    "format": "thread",
+    "topic_tag": "AI",
+    "is_trend_jack": false,
+    "critique_score": 7.0,
+    "critique_reason": "hook=7 (Strong, punchy opening that frames unstructured data as a liability.) | spec=8 (References specific SDK tools like Pydantic and Zod for schema enforcement.) | orig=6 (Solid technical advice, though structured output is becoming a standard industry expectation.) | voice=7 (Clean and direct, though it leans slightly into technical documentation toward the end.) | share=7 (Engineers and technical founders will save this as a reminder to enforce schema constraints.)",
+    "is_x_thread": false,
+    "is_threads_thread": true,
+    "x_posts": [],
+    "threads_posts": [
+      "Unstructured text is the next legacy data format. Founders often build pipelines that break when LLMs change their tone.",
+      "Gemini models allow developers to configure responses that adhere to a provided JSON Schema.",
+      "The Google GenAI SDKs support defining these schemas using Pydantic for Python or Zod for JavaScript.",
+      "You can use these structured outputs for data extraction or classifying text into predefined categories.",
+      "Predictable data structures turn chaotic model outputs into reliable software inputs. Control the format to stop building brittle integrations."
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "18101435846408439",
+      "17985645182902409",
+      "18166436731497579",
+      "18187238155421408",
+      "17953583973340739"
+    ]
   }
 ]
