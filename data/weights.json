@@ -1,16 +1,16 @@
 {
-  "updated_at": "2026-11-01T19:49:07.917305+00:00",
+  "updated_at": "2026-11-08T10:54:18.293768+00:00",
   "pillars": {
     "tech_for_business": 1.0,
     "marketing_case_study": 1.0,
-    "business_strategy": 1.0,
-    "ai_hack": 1.0,
-    "psychology_insight": 1.25,
+    "business_strategy": 0.8,
+    "ai_hack": 1.25,
+    "psychology_insight": 1.24,
     "motivation": 1.0
   },
   "hooks": {
     "counterintuitive_claim": 1.0,
-    "most_people_think": 1.25,
+    "most_people_think": 1.24,
     "specific_number": 1.0,
     "short_story": 1.0,
     "contrast": 1.0,
@@ -28,7 +28,7 @@
   "formats": {
     "one_liner": 1.0,
     "short_insight": 1.0,
-    "mini_case_study": 1.0,
-    "thread": 1.25
+    "mini_case_study": 0.8,
+    "thread": 1.56
   }
 }
