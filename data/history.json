@@ -1094,5 +1094,31 @@
       "17875455273639827",
       "18023437640730162"
     ]
+  },
+  {
+    "timestamp": "2026-11-09T12:28:24.700893+00:00",
+    "slot": "morning",
+    "date": "2026-11-09T12:28:24.700539+00:00",
+    "weekday": "monday",
+    "pillar": "tech_for_business",
+    "industry": null,
+    "entity": "BrowserStack",
+    "topic": "Scaling through strategic technical acquisitions",
+    "hook_pattern": "Post-Mortem Opener",
+    "format": "mini_case_study",
+    "topic_tag": "Business",
+    "is_trend_jack": false,
+    "critique_score": 7.2,
+    "critique_reason": "hook=6 (It is a solid observation, but lacks the punch or curiosity gap needed to stop a fast scroll.) | spec=8 (Names BrowserStack and Requestly specifically, grounding the insight in a real M&A move.) | orig=7 (Correctly identifies the 'buy vs build' nuance in developer tooling, which is a sharp observation.) | voice=8 (Clean, direct, and avoids corporate jargon, fitting the Mumbai founder persona well.) | share=7 (High utility for product managers and founders looking at inorganic growth strategies.)",
+    "is_x_thread": false,
+    "is_threads_thread": false,
+    "x_posts": [],
+    "threads_posts": [
+      "Acquisitions are often just expensive feature additions. Real growth comes from folding external tools into the core workflow rather than building from scratch."
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "18110367242573332"
+    ]
   }
 ]

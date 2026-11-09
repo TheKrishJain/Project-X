@@ -178,5 +178,23 @@
     "quotes": 0,
     "score": 306,
     "sample_text": "Unstructured text is the next legacy data format. Founders often build pipelines that break when LLMs change their tone."
+  },
+  {
+    "post_id": "18104077541535785",
+    "timestamp": "2026-11-08T10:54:15.454234+00:00",
+    "topic": "Rapid manufacturing and supply chain agility",
+    "pillar": "business_strategy",
+    "hook": "Uncomfortable Truth",
+    "format": "thread",
+    "topic_tag": "Startups",
+    "slot": "morning",
+    "length": 178,
+    "views": 20,
+    "likes": 0,
+    "replies": 3,
+    "reposts": 0,
+    "quotes": 0,
+    "score": 65,
+    "sample_text": "Speed is a better moat than scale. Companies often prioritize large batches over the ability to respond to change. This creates a massive di"
   }
 ]
