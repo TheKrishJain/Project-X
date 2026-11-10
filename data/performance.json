@@ -9,12 +9,12 @@
     "topic_tag": "Psychology",
     "slot": "night",
     "length": 67,
-    "views": 48,
+    "views": 49,
     "likes": 0,
     "replies": 5,
     "reposts": 0,
     "quotes": 0,
-    "score": 123,
+    "score": 124,
     "sample_text": "Most people think efficiency means doing the work for the customer."
   },
   {
@@ -27,12 +27,12 @@
     "topic_tag": "Startups",
     "slot": "night",
     "length": 118,
-    "views": 112,
+    "views": 113,
     "likes": 0,
     "replies": 4,
     "reposts": 0,
     "quotes": 0,
-    "score": 172,
+    "score": 173,
     "sample_text": "Raw technical specs rarely dictate market winners. Founders often optimize for speed while users care about endurance."
   },
   {
@@ -45,12 +45,12 @@
     "topic_tag": "Startups",
     "slot": "morning",
     "length": 315,
-    "views": 165,
+    "views": 166,
     "likes": 0,
     "replies": 0,
     "reposts": 0,
     "quotes": 0,
-    "score": 165,
+    "score": 166,
     "sample_text": "Overproduction is the quietest operational killer.\n\nTaiichi Ohno and Eiji Toyoda developed the Toyota Production System between 1948 and 197"
   },
   {
@@ -63,12 +63,12 @@
     "topic_tag": "Startups",
     "slot": "morning",
     "length": 258,
-    "views": 13,
+    "views": 14,
     "likes": 0,
     "replies": 3,
     "reposts": 0,
     "quotes": 0,
-    "score": 58,
+    "score": 59,
     "sample_text": "Charging for entry creates a different customer. Most retailers fight for the transaction at the shelf. Some businesses win by making the tr"
   },
   {
@@ -81,12 +81,12 @@
     "topic_tag": "Business",
     "slot": "night",
     "length": 223,
-    "views": 14,
+    "views": 15,
     "likes": 0,
     "replies": 3,
     "reposts": 0,
     "quotes": 0,
-    "score": 59,
+    "score": 60,
     "sample_text": "Neutral infrastructure becomes a liability at scale.\n\nFounders often build systems designed to be invisible.\n\nPublic pressure eventually for"
   },
   {
@@ -99,12 +99,12 @@
     "topic_tag": "Startups",
     "slot": "night",
     "length": 237,
-    "views": 18,
+    "views": 20,
     "likes": 0,
     "replies": 0,
     "reposts": 0,
     "quotes": 0,
-    "score": 18,
+    "score": 20,
     "sample_text": "Nobody talks about the cost of complexity. Standardizing every piece of hardware eliminates the friction of managing different operational w"
   },
   {
@@ -117,12 +117,12 @@
     "topic_tag": "Startups",
     "slot": "night",
     "length": 299,
-    "views": 105,
+    "views": 107,
     "likes": 0,
     "replies": 0,
     "reposts": 0,
     "quotes": 0,
-    "score": 105,
+    "score": 107,
     "sample_text": "Rent DVDs first, stream movies later.\n\nNetflix started as a DVD rental service to build a customer base before launching streaming. They rej"
   },
   {
@@ -135,12 +135,12 @@
     "topic_tag": "Business",
     "slot": "morning",
     "length": 212,
-    "views": 90,
+    "views": 93,
     "likes": 0,
     "replies": 4,
     "reposts": 0,
     "quotes": 0,
-    "score": 150,
+    "score": 153,
     "sample_text": "Build products for your own problems first. Most founders chase abstract market gaps while ignoring the friction in their daily operations. "
   },
   {
@@ -153,12 +153,12 @@
     "topic_tag": "Startups",
     "slot": "night",
     "length": 241,
-    "views": 20,
+    "views": 22,
     "likes": 0,
     "replies": 0,
     "reposts": 0,
     "quotes": 0,
-    "score": 20,
+    "score": 22,
     "sample_text": "Winning requires ignoring your competitors' technical benchmarks. Nintendo ignored the raw computational power of the Xbox 360 and PlayStati"
   },
   {
@@ -171,12 +171,12 @@
     "topic_tag": "AI",
     "slot": "morning",
     "length": 120,
-    "views": 246,
+    "views": 249,
     "likes": 0,
     "replies": 4,
     "reposts": 0,
     "quotes": 0,
-    "score": 306,
+    "score": 309,
     "sample_text": "Unstructured text is the next legacy data format. Founders often build pipelines that break when LLMs change their tone."
   },
   {
@@ -189,12 +189,30 @@
     "topic_tag": "Startups",
     "slot": "morning",
     "length": 178,
-    "views": 20,
+    "views": 22,
     "likes": 0,
     "replies": 3,
     "reposts": 0,
     "quotes": 0,
-    "score": 65,
+    "score": 67,
     "sample_text": "Speed is a better moat than scale. Companies often prioritize large batches over the ability to respond to change. This creates a massive di"
+  },
+  {
+    "post_id": "18110367242573332",
+    "timestamp": "2026-11-09T12:28:24.700893+00:00",
+    "topic": "Scaling through strategic technical acquisitions",
+    "pillar": "tech_for_business",
+    "hook": "Post-Mortem Opener",
+    "format": "mini_case_study",
+    "topic_tag": "Business",
+    "slot": "morning",
+    "length": 160,
+    "views": 265,
+    "likes": 0,
+    "replies": 0,
+    "reposts": 0,
+    "quotes": 0,
+    "score": 265,
+    "sample_text": "Acquisitions are often just expensive feature additions. Real growth comes from folding external tools into the core workflow rather than bu"
   }
 ]

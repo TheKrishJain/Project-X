@@ -1120,5 +1120,31 @@
     "threads_post_ids": [
       "18110367242573332"
     ]
+  },
+  {
+    "timestamp": "2026-11-10T21:41:27.303421+00:00",
+    "slot": "night",
+    "date": "2026-11-10T21:41:27.302978+00:00",
+    "weekday": "tuesday",
+    "pillar": "tech_for_business",
+    "industry": null,
+    "entity": "Zerodha",
+    "topic": "In-house engineering as a competitive advantage",
+    "hook_pattern": "One-Line Observation",
+    "format": "short_insight",
+    "topic_tag": "Business",
+    "is_trend_jack": false,
+    "critique_score": 7.4,
+    "critique_reason": "hook=7 (Short, punchy, and hits a common founder pain point immediately.) | spec=9 (Cites specific leadership, timeline, and exact user count for Zerodha.) | orig=6 (The 'build vs buy' debate is common, though the Zerodha example provides strong evidence.) | voice=8 (Direct, no-nonsense tone that fits the Mumbai founder persona.) | share=7 (High-signal case study that operators will save for their own build strategy.)",
+    "is_x_thread": false,
+    "is_threads_thread": false,
+    "x_posts": [],
+    "threads_posts": [
+      "Build your core tech to own your growth. Kailash Nadh joined Zerodha in 2013 to lead an in-house technology team. Outsourcing your primary product logic usually creates a permanent ceiling on your speed."
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "17913043731309313"
+    ]
   }
 ]
