@@ -99,12 +99,12 @@
     "topic_tag": "Startups",
     "slot": "night",
     "length": 237,
-    "views": 20,
+    "views": 21,
     "likes": 0,
     "replies": 0,
     "reposts": 0,
     "quotes": 0,
-    "score": 20,
+    "score": 21,
     "sample_text": "Nobody talks about the cost of complexity. Standardizing every piece of hardware eliminates the friction of managing different operational w"
   },
   {
@@ -117,12 +117,12 @@
     "topic_tag": "Startups",
     "slot": "night",
     "length": 299,
-    "views": 107,
+    "views": 108,
     "likes": 0,
     "replies": 0,
     "reposts": 0,
     "quotes": 0,
-    "score": 107,
+    "score": 108,
     "sample_text": "Rent DVDs first, stream movies later.\n\nNetflix started as a DVD rental service to build a customer base before launching streaming. They rej"
   },
   {
@@ -135,12 +135,12 @@
     "topic_tag": "Business",
     "slot": "morning",
     "length": 212,
-    "views": 93,
+    "views": 94,
     "likes": 0,
     "replies": 4,
     "reposts": 0,
     "quotes": 0,
-    "score": 153,
+    "score": 154,
     "sample_text": "Build products for your own problems first. Most founders chase abstract market gaps while ignoring the friction in their daily operations. "
   },
   {
@@ -171,12 +171,12 @@
     "topic_tag": "AI",
     "slot": "morning",
     "length": 120,
-    "views": 249,
+    "views": 250,
     "likes": 0,
     "replies": 4,
     "reposts": 0,
     "quotes": 0,
-    "score": 309,
+    "score": 310,
     "sample_text": "Unstructured text is the next legacy data format. Founders often build pipelines that break when LLMs change their tone."
   },
   {
@@ -214,5 +214,23 @@
     "quotes": 0,
     "score": 265,
     "sample_text": "Acquisitions are often just expensive feature additions. Real growth comes from folding external tools into the core workflow rather than bu"
+  },
+  {
+    "post_id": "17913043731309313",
+    "timestamp": "2026-11-10T21:41:27.303421+00:00",
+    "topic": "In-house engineering as a competitive advantage",
+    "pillar": "tech_for_business",
+    "hook": "One-Line Observation",
+    "format": "short_insight",
+    "topic_tag": "Business",
+    "slot": "night",
+    "length": 203,
+    "views": 47,
+    "likes": 0,
+    "replies": 0,
+    "reposts": 0,
+    "quotes": 0,
+    "score": 47,
+    "sample_text": "Build your core tech to own your growth. Kailash Nadh joined Zerodha in 2013 to lead an in-house technology team. Outsourcing your primary p"
   }
 ]

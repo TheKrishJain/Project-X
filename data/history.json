@@ -1146,5 +1146,31 @@
     "threads_post_ids": [
       "17913043731309313"
     ]
+  },
+  {
+    "timestamp": "2026-11-12T22:00:03.827754+00:00",
+    "slot": "night",
+    "date": "2026-11-12T22:00:03.827353+00:00",
+    "weekday": "thursday",
+    "pillar": "business_strategy",
+    "industry": null,
+    "entity": "Dabbawala",
+    "topic": "Operational coding for logistics",
+    "hook_pattern": "Contrarian Rule",
+    "format": "mini_case_study",
+    "topic_tag": "Startups",
+    "is_trend_jack": false,
+    "critique_score": 7.6,
+    "critique_reason": "hook=7 (Short, punchy, and challenges the common startup obsession with over-engineering.) | spec=8 (Uses the Dabbawala coding system as a concrete, real-world example of low-tech logistics.) | orig=7 (Reframes a local cultural icon as a masterclass in scalable, low-friction operational design.) | voice=8 (Clean, direct, and avoids the typical fluff found in business writing.) | share=8 (Operators love mental models that prove simplicity beats complexity in logistics.)",
+    "is_x_thread": false,
+    "is_threads_thread": false,
+    "x_posts": [],
+    "threads_posts": [
+      "Complexity is a failure of design. Each mark identifies the starting station, destination, and the specific building or floor for delivery. Systems that rely on simple visual cues often scale better than those requiring advanced literacy."
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "17960989008014313"
+    ]
   }
 ]
