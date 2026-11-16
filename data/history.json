@@ -1172,5 +1172,39 @@
     "threads_post_ids": [
       "17960989008014313"
     ]
+  },
+  {
+    "timestamp": "2026-11-16T12:26:19.175824+00:00",
+    "slot": "morning",
+    "date": "2026-11-16T12:26:19.175390+00:00",
+    "weekday": "monday",
+    "pillar": "tech_for_business",
+    "industry": null,
+    "entity": "Open Network for Digital Commerce",
+    "topic": "Decentralized E-commerce Infrastructure Strategy",
+    "hook_pattern": "Quiet Pattern",
+    "format": "thread",
+    "topic_tag": "Business",
+    "is_trend_jack": false,
+    "critique_score": 7.0,
+    "critique_reason": "hook=6 (The hook is intellectually stimulating but slightly too abstract to stop a casual scroll.) | spec=8 (Cites specific dates, investment amounts, and institutional backers like PNB and SBI.) | orig=7 (Frames ONDC as an unbundling protocol rather than just another government initiative.) | voice=7 (Clean and professional, though it leans slightly toward a report style rather than a founder's personal insight.) | share=7 (High utility for operators interested in protocol-based commerce and Indian market infrastructure.)",
+    "is_x_thread": false,
+    "is_threads_thread": true,
+    "x_posts": [],
+    "threads_posts": [
+      "Monolithic platforms often hide their own unbundling pressure.\n\nCentralized systems eventually force every participant to play by one set of rules.\n\nTrue scale comes from replacing intermediaries with shared protocols.",
+      "Open Network for Digital Commerce began as a set of specifications on 31 December 2021. The Department for Promotion of Industry and Internal Trade approved 10 crore as initial investment.",
+      "Early promoters like Punjab National Bank and State Bank of India invested seed money. The Quality Council of India used open source methodologies to incubate the network.",
+      "The project aims to cover 25 percent of domestic digital commerce within two years of launch. It unbundles delivery services to let customers choose their own logistics provider.",
+      "Build systems that solve for the network instead of the silo. The most durable products act as bridges rather than walls."
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "18150971140493602",
+      "18115637021603630",
+      "17934011682166070",
+      "18119623139023070",
+      "17896611603615481"
+    ]
   }
 ]
