@@ -1206,5 +1206,37 @@
       "18119623139023070",
       "17896611603615481"
     ]
+  },
+  {
+    "timestamp": "2026-11-17T23:05:00.864095+00:00",
+    "slot": "night",
+    "date": "2026-11-17T23:05:00.863732+00:00",
+    "weekday": "tuesday",
+    "pillar": "business_strategy",
+    "industry": null,
+    "entity": "Instagram",
+    "topic": "Pivot strategy and product constraints",
+    "hook_pattern": "Short Story Opener",
+    "format": "thread",
+    "topic_tag": "Startups",
+    "is_trend_jack": false,
+    "critique_score": 7.2,
+    "critique_reason": "hook=7 (Short and punchy, though slightly generic compared to a data-driven hook.) | spec=8 (Mentions Burbn, Foursquare, and the specific 640px constraint accurately.) | orig=6 (The Instagram origin story is well-known, though the constraint angle adds value.) | voice=8 (Clean, direct, and avoids unnecessary corporate jargon.) | share=7 (Solid mental model for founders that is easy to digest and repost.)",
+    "is_x_thread": false,
+    "is_threads_thread": true,
+    "x_posts": [],
+    "threads_posts": [
+      "Great products often hide in failed ones. Founders waste months building features that users ignore. They rarely notice the one tool their customers keep using.",
+      "Kevin Systrom and Mike Krieger originally developed a check-in app called Burbn. They realized users mainly used the photo-sharing feature instead of the check-in tools.\n\nThe team refocused the product on photo-sharing to differentiate from competitors like Foursquare.",
+      "They initially restricted images to a 640 pixel square aspect ratio. This constraint matched the display width of the iPhone hardware available at the time.",
+      "Constraints force users to focus on the core value of your utility. A product is only as strong as the one habit it creates."
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "18392943457230850",
+      "18094536167231726",
+      "18361222786170837",
+      "17901314361612038"
+    ]
   }
 ]

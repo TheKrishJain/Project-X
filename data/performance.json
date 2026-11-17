@@ -243,12 +243,30 @@
     "topic_tag": "Startups",
     "slot": "night",
     "length": 238,
-    "views": 29,
+    "views": 31,
     "likes": 1,
     "replies": 0,
     "reposts": 0,
     "quotes": 0,
-    "score": 34,
+    "score": 36,
     "sample_text": "Complexity is a failure of design. Each mark identifies the starting station, destination, and the specific building or floor for delivery. "
+  },
+  {
+    "post_id": "18150971140493602",
+    "timestamp": "2026-11-16T12:26:19.175824+00:00",
+    "topic": "Decentralized E-commerce Infrastructure Strategy",
+    "pillar": "tech_for_business",
+    "hook": "Quiet Pattern",
+    "format": "thread",
+    "topic_tag": "Business",
+    "slot": "morning",
+    "length": 218,
+    "views": 20,
+    "likes": 0,
+    "replies": 4,
+    "reposts": 0,
+    "quotes": 0,
+    "score": 80,
+    "sample_text": "Monolithic platforms often hide their own unbundling pressure.\n\nCentralized systems eventually force every participant to play by one set of"
   }
 ]
