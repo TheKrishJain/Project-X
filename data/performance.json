@@ -135,12 +135,12 @@
     "topic_tag": "Business",
     "slot": "morning",
     "length": 212,
-    "views": 94,
+    "views": 95,
     "likes": 0,
     "replies": 4,
     "reposts": 0,
     "quotes": 0,
-    "score": 154,
+    "score": 155,
     "sample_text": "Build products for your own problems first. Most founders chase abstract market gaps while ignoring the friction in their daily operations. "
   },
   {
@@ -261,12 +261,30 @@
     "topic_tag": "Business",
     "slot": "morning",
     "length": 218,
-    "views": 20,
+    "views": 22,
     "likes": 0,
     "replies": 4,
     "reposts": 0,
     "quotes": 0,
-    "score": 80,
+    "score": 82,
     "sample_text": "Monolithic platforms often hide their own unbundling pressure.\n\nCentralized systems eventually force every participant to play by one set of"
+  },
+  {
+    "post_id": "18392943457230850",
+    "timestamp": "2026-11-17T23:05:00.864095+00:00",
+    "topic": "Pivot strategy and product constraints",
+    "pillar": "business_strategy",
+    "hook": "Short Story Opener",
+    "format": "thread",
+    "topic_tag": "Startups",
+    "slot": "night",
+    "length": 160,
+    "views": 37,
+    "likes": 0,
+    "replies": 3,
+    "reposts": 0,
+    "quotes": 0,
+    "score": 82,
+    "sample_text": "Great products often hide in failed ones. Founders waste months building features that users ignore. They rarely notice the one tool their c"
   }
 ]
