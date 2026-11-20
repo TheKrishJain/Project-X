@@ -1264,5 +1264,31 @@
     "threads_post_ids": [
       "18080343278439613"
     ]
+  },
+  {
+    "timestamp": "2026-11-20T12:33:23.772210+00:00",
+    "slot": "morning",
+    "date": "2026-11-20T12:33:23.771788+00:00",
+    "weekday": "friday",
+    "pillar": "tech_for_business",
+    "industry": null,
+    "entity": "Aadhaar",
+    "topic": "Digital identity and selective data sharing",
+    "hook_pattern": "Myth vs Reality",
+    "format": "mini_case_study",
+    "topic_tag": "Business",
+    "is_trend_jack": false,
+    "critique_score": 7.4,
+    "critique_reason": "hook=7 (Short, punchy, and challenges the standard binary view of identity.) | spec=8 (References a specific launch date and the technical mechanism of digitally signed selective disclosure.) | orig=7 (Connects identity architecture to the broader, non-obvious business principle of data minimization as a trust moat.) | voice=8 (Clean, direct, and avoids corporate jargon; sounds like a founder observing a shift in infrastructure.) | share=7 (High-signal insight for product managers and founders building in the privacy-first or fintech space.)",
+    "is_x_thread": false,
+    "is_threads_thread": false,
+    "x_posts": [],
+    "threads_posts": [
+      "Identity is not a binary toggle.\n\nThe Aadhaar app launched on 28 January 2026 allows users to share identity credentials selectively. Verifiers receive a digitally signed format without storing the unique number. Systems that minimize data collection create more trust than those that hoard it."
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "18129910793488249"
+    ]
   }
 ]
