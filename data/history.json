@@ -1290,5 +1290,39 @@
     "threads_post_ids": [
       "18129910793488249"
     ]
+  },
+  {
+    "timestamp": "2026-11-22T12:23:03.605523+00:00",
+    "slot": "morning",
+    "date": "2026-11-22T12:23:03.604976+00:00",
+    "weekday": "sunday",
+    "pillar": "business_strategy",
+    "industry": null,
+    "entity": "Haier",
+    "topic": "Scaling through infrastructure and brand evolution",
+    "hook_pattern": "Counterintuitive Claim",
+    "format": "thread",
+    "topic_tag": "Startups",
+    "is_trend_jack": false,
+    "critique_score": 7.4,
+    "critique_reason": "hook=7 (Strong, provocative opening that challenges the standard 'build from scratch' founder narrative.) | spec=8 (Includes precise historical data like the 1984 debt figure and specific acquisition targets like GE Appliances.) | orig=7 (Shifts the focus from 'innovation' to 'turnaround' as a viable scaling strategy.) | voice=8 (Punchy, direct, and avoids academic fluff; sounds like a founder analyzing a case study.) | share=7 (High-signal content for operators interested in M&A and turnaround management.)",
+    "is_x_thread": false,
+    "is_threads_thread": true,
+    "x_posts": [],
+    "threads_posts": [
+      "Distressed assets hide the most valuable talent. Founders often overlook broken companies that sit on massive, dormant infrastructure.",
+      "Zhang Ruimin took over a refrigerator factory in 1984. The facility suffered from dilapidated infrastructure and a debt exceeding CN\u00a51.4 million.",
+      "Production rarely surpassed 80 refrigerators a month at the factory. The management faced severe quality control issues due to the existing economic system.",
+      "The company later expanded into diverse segments like gaming computers through the ThundeRobot brand. It also grew its portfolio by acquiring brands like GE Appliances and Fisher & Paykel.",
+      "Fixing the internal culture of a failing system creates the foundation for global scale. Survival is simply the first step toward building a brand ecosystem."
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "17974091742195445",
+      "17885509158535393",
+      "18110629601207366",
+      "18155695411551127",
+      "18145806040612301"
+    ]
   }
 ]

@@ -286,5 +286,41 @@
     "quotes": 0,
     "score": 82,
     "sample_text": "Great products often hide in failed ones. Founders waste months building features that users ignore. They rarely notice the one tool their c"
+  },
+  {
+    "post_id": "18080343278439613",
+    "timestamp": "2026-11-19T23:00:38.815363+00:00",
+    "topic": "Innovation and corporate bankruptcy strategy",
+    "pillar": "business_strategy",
+    "hook": "Before / After",
+    "format": "short_insight",
+    "topic_tag": "Startups",
+    "slot": "night",
+    "length": 54,
+    "views": 451,
+    "likes": 1,
+    "replies": 0,
+    "reposts": 0,
+    "quotes": 0,
+    "score": 456,
+    "sample_text": "Inventing the future kills the current business model."
+  },
+  {
+    "post_id": "18129910793488249",
+    "timestamp": "2026-11-20T12:33:23.772210+00:00",
+    "topic": "Digital identity and selective data sharing",
+    "pillar": "tech_for_business",
+    "hook": "Myth vs Reality",
+    "format": "mini_case_study",
+    "topic_tag": "Business",
+    "slot": "morning",
+    "length": 294,
+    "views": 17,
+    "likes": 0,
+    "replies": 0,
+    "reposts": 0,
+    "quotes": 0,
+    "score": 17,
+    "sample_text": "Identity is not a binary toggle.\n\nThe Aadhaar app launched on 28 January 2026 allows users to share identity credentials selectively. Verifi"
   }
 ]
