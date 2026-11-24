@@ -1358,5 +1358,31 @@
       "17991276000109344",
       "18126983620933903"
     ]
+  },
+  {
+    "timestamp": "2026-11-24T02:24:45.396253+00:00",
+    "slot": "night",
+    "date": "2026-11-24T02:24:45.395793+00:00",
+    "weekday": "tuesday",
+    "pillar": "business_strategy",
+    "industry": null,
+    "entity": "Maruti Suzuki",
+    "topic": "Small car production strategy",
+    "hook_pattern": "One-Line Observation",
+    "format": "mini_case_study",
+    "topic_tag": "Startups",
+    "is_trend_jack": false,
+    "critique_score": 7.4,
+    "critique_reason": "hook=7 (Short, punchy, and frames a business principle as a pattern.) | spec=8 (Uses specific pricing data points from Maruti's early market entry.) | orig=7 (Connects historical pricing strategy to modern survival tactics for new entrants.) | voice=8 (Clean, direct, and avoids corporate jargon; sounds like a founder observing a market.) | share=7 (Operators appreciate historical case studies that distill complex market entry into simple price-gap logic.)",
+    "is_x_thread": false,
+    "is_threads_thread": false,
+    "x_posts": [],
+    "threads_posts": [
+      "Scale often hides in simple product choices.\n\nMaruti Motors Limited planned to produce a small car priced at Rs 8,000. The final vehicle remained Rs 5,000 to Rs 10,000 cheaper than its counterparts despite cost escalations. Focusing on price gaps allows a new entrant to survive against established competition."
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "18200671606394976"
+    ]
   }
 ]
