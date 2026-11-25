@@ -1384,5 +1384,31 @@
     "threads_post_ids": [
       "18200671606394976"
     ]
+  },
+  {
+    "timestamp": "2026-11-25T23:45:45.846836+00:00",
+    "slot": "night",
+    "date": "2026-11-25T23:45:45.846229+00:00",
+    "weekday": "wednesday",
+    "pillar": "business_strategy",
+    "industry": null,
+    "entity": "Tata Nano",
+    "topic": "Trade offs in product design",
+    "hook_pattern": "Most People Think X. Actually Y.",
+    "format": "mini_case_study",
+    "topic_tag": "Startups",
+    "is_trend_jack": false,
+    "critique_score": 7.4,
+    "critique_reason": "hook=6 (It is a bit abstract and lacks the punchy curiosity required to stop a fast scroll.) | spec=9 (Citing the 100k rupee price point and specific design choices like lug nuts makes the case study concrete.) | orig=7 (It moves beyond generic 'cost-cutting is bad' advice by highlighting the specific psychological threshold of 'compromise'.) | voice=8 (The tone is sharp and direct, avoiding corporate fluff while maintaining a founder's perspective.) | share=7 (Product managers and founders will appreciate the warning about the 'perception of quality' trap.)",
+    "is_x_thread": false,
+    "is_threads_thread": false,
+    "x_posts": [],
+    "threads_posts": [
+      "Simplicity hides the danger of removing too much. Essential features are often the only thing keeping a product from being seen as a compromise."
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "18001379355048279"
+    ]
   }
 ]

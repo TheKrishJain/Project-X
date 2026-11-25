@@ -135,12 +135,12 @@
     "topic_tag": "Business",
     "slot": "morning",
     "length": 212,
-    "views": 96,
+    "views": 97,
     "likes": 0,
     "replies": 4,
     "reposts": 0,
     "quotes": 0,
-    "score": 156,
+    "score": 157,
     "sample_text": "Build products for your own problems first. Most founders chase abstract market gaps while ignoring the friction in their daily operations. "
   },
   {
@@ -225,12 +225,12 @@
     "topic_tag": "Business",
     "slot": "night",
     "length": 203,
-    "views": 48,
+    "views": 49,
     "likes": 0,
     "replies": 0,
     "reposts": 0,
     "quotes": 0,
-    "score": 48,
+    "score": 49,
     "sample_text": "Build your core tech to own your growth. Kailash Nadh joined Zerodha in 2013 to lead an in-house technology team. Outsourcing your primary p"
   },
   {
@@ -315,12 +315,12 @@
     "topic_tag": "Business",
     "slot": "morning",
     "length": 294,
-    "views": 20,
+    "views": 22,
     "likes": 0,
     "replies": 0,
     "reposts": 0,
     "quotes": 0,
-    "score": 20,
+    "score": 22,
     "sample_text": "Identity is not a binary toggle.\n\nThe Aadhaar app launched on 28 January 2026 allows users to share identity credentials selectively. Verifi"
   },
   {
@@ -333,12 +333,12 @@
     "topic_tag": "Startups",
     "slot": "morning",
     "length": 134,
-    "views": 316,
+    "views": 317,
     "likes": 0,
     "replies": 4,
     "reposts": 0,
     "quotes": 0,
-    "score": 376,
+    "score": 377,
     "sample_text": "Distressed assets hide the most valuable talent. Founders often overlook broken companies that sit on massive, dormant infrastructure."
   },
   {
@@ -358,5 +358,23 @@
     "quotes": 0,
     "score": 136,
     "sample_text": "Avoid direct fights with market giants.\n\nFounders often mistake intensity for scale when building new concepts. Trying to outplay an establi"
+  },
+  {
+    "post_id": "18200671606394976",
+    "timestamp": "2026-11-24T02:24:45.396253+00:00",
+    "topic": "Small car production strategy",
+    "pillar": "business_strategy",
+    "hook": "One-Line Observation",
+    "format": "mini_case_study",
+    "topic_tag": "Startups",
+    "slot": "night",
+    "length": 311,
+    "views": 70,
+    "likes": 0,
+    "replies": 0,
+    "reposts": 0,
+    "quotes": 0,
+    "score": 70,
+    "sample_text": "Scale often hides in simple product choices.\n\nMaruti Motors Limited planned to produce a small car priced at Rs 8,000. The final vehicle rem"
   }
 ]
