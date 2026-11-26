@@ -1410,5 +1410,31 @@
     "threads_post_ids": [
       "18001379355048279"
     ]
+  },
+  {
+    "timestamp": "2026-11-26T13:19:33.156042+00:00",
+    "slot": "morning",
+    "date": "2026-11-26T13:19:33.155545+00:00",
+    "weekday": "thursday",
+    "pillar": "business_strategy",
+    "industry": null,
+    "entity": "Jio",
+    "topic": "Scaling through infrastructure and mass adoption",
+    "hook_pattern": "Before / After",
+    "format": "short_insight",
+    "topic_tag": "Startups",
+    "is_trend_jack": false,
+    "critique_score": 7.2,
+    "critique_reason": "hook=7 (Short, punchy, and sets a clear premise about infrastructure.) | spec=8 (Cites exact subscriber count and timeline for Jio's 4G rollout.) | orig=6 (The 'own the pipes' argument is a classic business school trope, though well-applied here.) | voice=8 (Direct, no-nonsense tone that fits the Mumbai founder persona.) | share=7 (Strong mental model for operators interested in infrastructure-heavy moats.)",
+    "is_x_thread": false,
+    "is_threads_thread": false,
+    "x_posts": [],
+    "threads_posts": [
+      "Scale requires building your own pipes. Owning the underlying infrastructure creates a moat that competitors cannot easily bypass. True leverage comes from controlling the supply chain of your own product."
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "18097724819162851"
+    ]
   }
 ]
