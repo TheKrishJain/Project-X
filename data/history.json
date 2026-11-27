@@ -1436,5 +1436,31 @@
     "threads_post_ids": [
       "18097724819162851"
     ]
+  },
+  {
+    "timestamp": "2026-11-27T23:43:03.149711+00:00",
+    "slot": "night",
+    "date": "2026-11-27T23:43:03.149278+00:00",
+    "weekday": "friday",
+    "pillar": "business_strategy",
+    "industry": null,
+    "entity": "Fujifilm",
+    "topic": "Strategic diversification through technological innovation",
+    "hook_pattern": "Short Story Opener",
+    "format": "short_insight",
+    "topic_tag": "Startups",
+    "is_trend_jack": false,
+    "critique_score": 7.0,
+    "critique_reason": "hook=6 (It is punchy and under 12 words, but a bit abstract for a scroll-stopper.) | spec=7 (Correctly identifies Fujifilm's pivot to medical imaging via computed radiography.) | orig=7 (Good framing of technical debt as a potential market expansion tool.) | voice=8 (Clean, direct, and avoids the usual corporate fluff.) | share=7 (Solid mental model for founders looking to pivot their existing tech stack.)",
+    "is_x_thread": false,
+    "is_threads_thread": false,
+    "x_posts": [],
+    "threads_posts": [
+      "Growth often hides in your existing technical stack. Fujifilm developed computed radiography to reduce radiation exposure for both technicians and patients. You find new markets by solving the mechanical limitations of your current product."
+    ],
+    "x_post_ids": [],
+    "threads_post_ids": [
+      "18029635499927776"
+    ]
   }
 ]

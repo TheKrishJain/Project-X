@@ -279,12 +279,12 @@
     "topic_tag": "Startups",
     "slot": "night",
     "length": 160,
-    "views": 37,
+    "views": 38,
     "likes": 0,
     "replies": 3,
     "reposts": 0,
     "quotes": 0,
-    "score": 82,
+    "score": 83,
     "sample_text": "Great products often hide in failed ones. Founders waste months building features that users ignore. They rarely notice the one tool their c"
   },
   {
@@ -297,12 +297,12 @@
     "topic_tag": "Startups",
     "slot": "night",
     "length": 54,
-    "views": 451,
+    "views": 452,
     "likes": 1,
     "replies": 0,
     "reposts": 0,
     "quotes": 0,
-    "score": 456,
+    "score": 457,
     "sample_text": "Inventing the future kills the current business model."
   },
   {
@@ -351,12 +351,12 @@
     "topic_tag": "Startups",
     "slot": "night",
     "length": 203,
-    "views": 76,
+    "views": 78,
     "likes": 0,
     "replies": 4,
     "reposts": 0,
     "quotes": 0,
-    "score": 136,
+    "score": 138,
     "sample_text": "Avoid direct fights with market giants.\n\nFounders often mistake intensity for scale when building new concepts. Trying to outplay an establi"
   },
   {
@@ -376,5 +376,41 @@
     "quotes": 0,
     "score": 70,
     "sample_text": "Scale often hides in simple product choices.\n\nMaruti Motors Limited planned to produce a small car priced at Rs 8,000. The final vehicle rem"
+  },
+  {
+    "post_id": "18001379355048279",
+    "timestamp": "2026-11-25T23:45:45.846836+00:00",
+    "topic": "Trade offs in product design",
+    "pillar": "business_strategy",
+    "hook": "Most People Think X. Actually Y.",
+    "format": "mini_case_study",
+    "topic_tag": "Startups",
+    "slot": "night",
+    "length": 144,
+    "views": 69,
+    "likes": 0,
+    "replies": 0,
+    "reposts": 0,
+    "quotes": 0,
+    "score": 69,
+    "sample_text": "Simplicity hides the danger of removing too much. Essential features are often the only thing keeping a product from being seen as a comprom"
+  },
+  {
+    "post_id": "18097724819162851",
+    "timestamp": "2026-11-26T13:19:33.156042+00:00",
+    "topic": "Scaling through infrastructure and mass adoption",
+    "pillar": "business_strategy",
+    "hook": "Before / After",
+    "format": "short_insight",
+    "topic_tag": "Startups",
+    "slot": "morning",
+    "length": 205,
+    "views": 111,
+    "likes": 0,
+    "replies": 0,
+    "reposts": 0,
+    "quotes": 0,
+    "score": 111,
+    "sample_text": "Scale requires building your own pipes. Owning the underlying infrastructure creates a moat that competitors cannot easily bypass. True leve"
   }
 ]
